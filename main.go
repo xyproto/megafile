@@ -1,3 +1,4 @@
+// package main is the main package for the MegaCLI program
 package main
 
 import (
@@ -16,6 +17,7 @@ import (
 	"github.com/xyproto/vt"
 )
 
+// State holds the current state of the shell, then canvas and the directory structures
 type State struct {
 	c            *vt.Canvas
 	dir          []string
@@ -295,9 +297,8 @@ func (s *State) execute(cmd, path string) (bool, error) {
 				return true, nil
 			}
 			return false, nil
-		} else {
-			return false, errors.New("cd what")
 		}
+		return false, errors.New("cd what")
 	}
 	if strings.Contains(cmd, " ") {
 		fields := strings.Fields(cmd)
@@ -398,7 +399,7 @@ func main() {
 
 	}
 
-	clear_written := func() {
+	clearWritten := func() {
 		y := s.starty
 		for x := s.startx + s.promptLength; x < c.W(); x++ {
 			c.WriteRune(x, y, vt.LightYellow, vt.BackgroundDefault, ' ')
@@ -429,7 +430,7 @@ func main() {
 		}
 		s.written = []rune{}
 		index = 0
-		clear_written()
+		clearWritten()
 		drawWritten()
 	}
 
@@ -453,17 +454,17 @@ func main() {
 			}
 			s.written = []rune{}
 			index = 0
-			clear_written()
+			clearWritten()
 			drawWritten()
 		case "c:127": // backspace
-			clear_written()
+			clearWritten()
 			if len(s.written) > 0 && index > 0 {
 				s.written = append(s.written[:index-1], s.written[index:]...)
 				index--
 			}
 			drawWritten()
 		case "c:11": // ctrl-k
-			clear_written()
+			clearWritten()
 			if len(s.written) > 0 {
 				s.written = s.written[:index]
 			}
@@ -471,32 +472,32 @@ func main() {
 		case "c:4": // ctrl-d
 			if len(s.written) == 0 {
 				s.bashMode = !s.bashMode
-				clear_written()
+				clearWritten()
 				clearAndPrepare()
 				drawWritten()
 				break
 			}
 			if len(s.written) > 0 {
-				clear_written()
+				clearWritten()
 				s.written = append(s.written[:index], s.written[index+1:]...)
 				drawWritten()
 			}
 		case "c:1", homeKey, upArrow: // ctrl-a, home, arrow up
-			clear_written()
+			clearWritten()
 			index = 0
 			drawWritten()
 		case "c:5", endKey, downArrow: // ctrl-e, end, arrow down
-			clear_written()
+			clearWritten()
 			index = ulen(s.written) // one after the text
 			drawWritten()
 		case leftArrow:
-			clear_written()
+			clearWritten()
 			if index > 0 {
 				index--
 			}
 			drawWritten()
 		case rightArrow:
-			clear_written()
+			clearWritten()
 			if index < ulen(s.written) {
 				index++
 			}
@@ -510,17 +511,17 @@ func main() {
 				listDirectory()
 				break
 			}
-			clear_written()
-			last_word_written_so_far := string(s.written)
-			if fields := strings.Fields(last_word_written_so_far); len(fields) > 1 {
-				last_word_written_so_far = fields[len(fields)-1]
+			clearWritten()
+			lastWordWrittenSoFar := string(s.written)
+			if fields := strings.Fields(lastWordWrittenSoFar); len(fields) > 1 {
+				lastWordWrittenSoFar = fields[len(fields)-1]
 			}
 			found := false
 			if entries, err := os.ReadDir(s.dir[s.dirIndex]); err == nil { // success
 				for _, entry := range entries {
 					name := entry.Name()
-					if strings.HasPrefix(name, last_word_written_so_far) {
-						rest := []rune(name)[len(last_word_written_so_far):]
+					if strings.HasPrefix(name, lastWordWrittenSoFar) {
+						rest := []rune(name)[len(lastWordWrittenSoFar):]
 						s.written = append(s.written, rest...)
 						index += ulen(rest)
 						found = true
@@ -534,7 +535,7 @@ func main() {
 					if entries, err := os.ReadDir(p); err == nil { // success
 						for _, entry := range entries {
 							name := entry.Name()
-							if strings.HasPrefix(name, last_word_written_so_far) && files.IsExecutable(filepath.Join(p, name)) && len(s.written) < len([]rune(name)) {
+							if strings.HasPrefix(name, lastWordWrittenSoFar) && files.IsExecutable(filepath.Join(p, name)) && len(s.written) < len([]rune(name)) {
 								rest := []rune(name)[len(s.written):]
 								s.written = append(s.written, rest...)
 								index += ulen(rest)
@@ -556,11 +557,11 @@ func main() {
 		case "":
 			continue
 		default:
-			clear_written()
+			clearWritten()
 			tmp := append(s.written[:index], []rune(key)...)
 			s.written = append(tmp, s.written[index:]...)
 			index++
-			clear_written()
+			clearWritten()
 			drawWritten()
 		}
 		c.Draw()
