@@ -1,6 +1,6 @@
 # MegaCLI
 
-A simple and snappy shell TUI for Linux, written in Go.
+A simple and colorful TUI shell for Linux, written in Go.
 
 ![screenshot](img/screenshot.png)
 
