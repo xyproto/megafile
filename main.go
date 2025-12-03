@@ -97,7 +97,7 @@ func (s *State) ls(dir string) error {
 		if isdir(path) {
 			s.c.Write(x, y, vt.Blue, vt.BackgroundDefault, name)
 			s.c.Write(x+ulen(name), y, vt.White, vt.BackgroundDefault, "/")
-		} else if isexec(path) {
+		} else if files.IsExecutableCached(path) {
 			s.c.Write(x, y, vt.LightGreen, vt.BackgroundDefault, name)
 			s.c.Write(x+ulen(name), y, vt.White, vt.BackgroundDefault, "*")
 		} else if files.IsSymlink(path) {
@@ -133,10 +133,6 @@ func isfile(path string) bool {
 		return fi.Mode().IsRegular()
 	}
 	return false
-}
-
-func isexec(path string) bool {
-	return files.IsExecutableCached(path)
 }
 
 func (s *State) edit(filename, path string) error {
@@ -241,6 +237,18 @@ func (s *State) execute(cmd, path string) (bool, error) {
 		return false, nil
 	}
 	if isfile(filepath.Join(path, cmd)) { // relative path
+		if strings.HasPrefix(cmd, "./") && files.IsExecutableCached(filepath.Join(path, cmd)) {
+			args := []string{}
+			if strings.Contains(cmd, " ") {
+				fields := strings.Split(cmd, " ")
+				args = fields[1:]
+			}
+			output, err := run2(cmd, args, path)
+			if err == nil {
+				s.drawOutput(output)
+			}
+			return false, err
+		}
 		return false, s.edit(cmd, path)
 	}
 	if isfile(cmd) { // abs absolute path
@@ -517,7 +525,7 @@ func main() {
 				break
 			}
 			clearWritten()
-			lastWordWrittenSoFar := string(s.written)
+			lastWordWrittenSoFar := strings.TrimPrefix(string(s.written), "./")
 			if fields := strings.Fields(lastWordWrittenSoFar); len(fields) > 1 {
 				lastWordWrittenSoFar = fields[len(fields)-1]
 			}
