@@ -31,9 +31,9 @@ type State struct {
 }
 
 const (
+	versionString = "MegaCLI 0.0.1"
+
 	startMessage = "---=[ MegaCLI ]=---"
-	ctrlcMessage = "bye (ctrl-c)"
-	exitMessage  = "bye"
 
 	leftArrow  = "←"
 	rightArrow = "→"
@@ -324,6 +324,12 @@ func (s *State) execute(cmd, path string) (bool, error) {
 }
 
 func main() {
+
+	if len(os.Args) > 1 && os.Args[1] == "--version" {
+		fmt.Println(versionString)
+		return
+	}
+
 	// Initialize vt terminal settings
 	vt.Init()
 
@@ -344,7 +350,6 @@ func main() {
 	go func() {
 		<-ch
 		cleanupFunc()
-		fmt.Fprintln(os.Stderr, ctrlcMessage)
 		os.Exit(1)
 	}()
 
@@ -469,7 +474,6 @@ func main() {
 		case "c:4": // ctrl-d
 			if len(s.written) == 0 {
 				cleanupFunc()
-				fmt.Fprintln(os.Stderr, ctrlcMessage)
 				os.Exit(1)
 				break
 			}
@@ -551,7 +555,6 @@ func main() {
 		case "c:3": // ctrl-c
 			if len(s.written) == 0 {
 				cleanupFunc()
-				fmt.Fprintln(os.Stderr, ctrlcMessage)
 				os.Exit(1)
 				break
 			}
@@ -572,6 +575,4 @@ func main() {
 		}
 		c.Draw()
 	}
-
-	c.Write(10, 10, vt.LightRed, vt.BackgroundDefault, exitMessage)
 }
