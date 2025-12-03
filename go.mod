@@ -1,0 +1,16 @@
+module github.com/xyproto/megacli
+
+go 1.25.4
+
+require (
+	github.com/xyproto/ask v1.1.0
+	github.com/xyproto/vt v1.2.10
+)
+
+require (
+	github.com/pkg/term v1.2.0-beta.2 // indirect
+	github.com/xyproto/burnfont v1.2.3 // indirect
+	github.com/xyproto/env/v2 v2.5.3 // indirect
+	golang.org/x/sys v0.38.0 // indirect
+	golang.org/x/term v0.37.0 // indirect
+)
