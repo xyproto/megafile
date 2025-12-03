@@ -300,6 +300,13 @@ func (s *State) execute(cmd, path string) (bool, error) {
 		}
 		return false, errors.New("cd what")
 	}
+	if cmd == "echo" {
+		return false, nil
+	}
+	if strings.HasPrefix(cmd, "echo ") {
+		s.drawOutput(cmd[5:])
+		return false, nil
+	}
 	if strings.Contains(cmd, " ") {
 		fields := strings.Fields(cmd)
 		output, err := run2(fields[0], strings.Split(fields[1], " "), s.dir[s.dirIndex])
@@ -311,7 +318,7 @@ func (s *State) execute(cmd, path string) (bool, error) {
 		return false, run(foundExecutableInPath, []string{}, s.dir[s.dirIndex])
 	}
 
-	return false, errors.New("?")
+	return false, fmt.Errorf("WHAT DO YOU MEAN, %s?", cmd)
 }
 
 func main() {
@@ -330,7 +337,7 @@ func main() {
 	defer cleanupFunc()
 
 	// Handle ctrl-c
-	ch := make(chan os.Signal)
+	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, os.Interrupt, syscall.SIGTERM)
 	go func() {
 		<-ch
@@ -455,7 +462,7 @@ func main() {
 			s.written = []rune{}
 			index = 0
 			clearWritten()
-			drawWritten()
+			drawWritten() // for the cursor
 		case "c:127": // backspace
 			clearWritten()
 			if len(s.written) > 0 && index > 0 {
@@ -548,19 +555,21 @@ func main() {
 			drawWritten()
 		case "c:12": // ctrl-l
 			c.Clear()
+			clearAndPrepare()
 		case "c:0": // ctrl-space
 			run("tig", []string{}, s.dir[s.dirIndex])
 		case "c:3": // ctrl-c
-			cleanupFunc()
-			fmt.Fprintln(os.Stderr, ctrlcMessage)
-			os.Exit(1)
+			s.written = []rune{}
+			index = 0
+			clearWritten()
+			drawWritten() // for the cursor
 		case "":
 			continue
 		default:
 			clearWritten()
 			tmp := append(s.written[:index], []rune(key)...)
 			s.written = append(tmp, s.written[index:]...)
-			index++
+			index += ulen([]rune(key))
 			clearWritten()
 			drawWritten()
 		}
