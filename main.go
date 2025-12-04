@@ -80,13 +80,16 @@ func (s *State) drawError(text string) {
 
 func (s *State) ls(dir string) error {
 	const margin = 1
-	longestSoFar := uint(0)
+	var (
+		x            = s.startx
+		y            = s.starty + 1
+		w            = s.c.W()
+		longestSoFar = uint(0)
+	)
 	entries, err := os.ReadDir(dir)
 	if err != nil {
 		return err
 	}
-	x := s.startx
-	y := s.starty + 1
 	for _, e := range entries {
 		name := e.Name()
 		if !s.showHidden && strings.HasPrefix(name, ".") {
@@ -96,7 +99,7 @@ func (s *State) ls(dir string) error {
 			longestSoFar = ulen(name)
 		}
 		path := filepath.Join(dir, name)
-		if isdir(path) {
+		if files.IsDir(path) {
 			s.c.Write(x, y, vt.Blue, vt.BackgroundDefault, name)
 			s.c.Write(x+ulen(name), y, vt.White, vt.BackgroundDefault, "/")
 		} else if files.IsExecutableCached(path) {
@@ -116,25 +119,11 @@ func (s *State) ls(dir string) error {
 			x += longestSoFar + margin
 			y = s.starty + 1
 		}
-		if x+longestSoFar > s.c.W() {
+		if x+longestSoFar > w {
 			break
 		}
 	}
 	return nil
-}
-
-func isdir(path string) bool {
-	if fi, err := os.Stat(path); err == nil { // success
-		return fi.Mode().IsDir()
-	}
-	return false
-}
-
-func isfile(path string) bool {
-	if fi, err := os.Stat(path); err == nil { // success
-		return fi.Mode().IsRegular()
-	}
-	return false
 }
 
 func (s *State) edit(filename, path string) error {
@@ -216,7 +205,7 @@ func (s *State) execute(cmd, path string) (bool, error) {
 		s.quit = true
 		return false, nil
 	}
-	if isdir(filepath.Join(path, cmd)) { // relative path
+	if files.IsDir(filepath.Join(path, cmd)) { // relative path
 		newPath := filepath.Join(path, cmd)
 		if s.dir[s.dirIndex] != newPath {
 			s.setPath(newPath)
@@ -224,14 +213,14 @@ func (s *State) execute(cmd, path string) (bool, error) {
 		}
 		return false, nil
 	}
-	if isdir(cmd) { // absolute path
+	if files.IsDir(cmd) { // absolute path
 		if s.dir[s.dirIndex] != cmd {
 			s.setPath(cmd)
 			return true, nil
 		}
 		return false, nil
 	}
-	if isfile(filepath.Join(path, cmd)) { // relative path
+	if files.IsFile(filepath.Join(path, cmd)) { // relative path
 		if strings.HasPrefix(cmd, "./") && files.IsExecutableCached(filepath.Join(path, cmd)) {
 			args := []string{}
 			if strings.Contains(cmd, " ") {
@@ -246,7 +235,7 @@ func (s *State) execute(cmd, path string) (bool, error) {
 		}
 		return false, s.edit(cmd, path)
 	}
-	if isfile(cmd) { // abs absolute path
+	if files.IsFile(cmd) { // abs absolute path
 		return false, s.edit(cmd, path)
 	}
 	if cmd == "l" || cmd == "ls" || cmd == "dir" {
@@ -275,13 +264,13 @@ func (s *State) execute(cmd, path string) (bool, error) {
 				return true, nil
 			}
 			return false, nil
-		} else if isdir(possibleDirectory) {
+		} else if files.IsDir(possibleDirectory) {
 			if s.dir[s.dirIndex] != possibleDirectory {
 				s.setPath(possibleDirectory)
 				return true, nil
 			}
 			return false, nil
-		} else if isdir(rest) {
+		} else if files.IsDir(rest) {
 			if s.dir[s.dirIndex] != rest {
 				s.setPath(rest)
 				return true, nil
