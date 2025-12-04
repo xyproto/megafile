@@ -319,6 +319,14 @@ func (s *State) execute(cmd, path string) (bool, bool, error) {
 	return false, false, fmt.Errorf("WHAT DO YOU MEAN, %s?", cmd)
 }
 
+func (s *State) currentAbsDir() string {
+	path := s.dir[s.dirIndex]
+	if absPath, err := filepath.Abs(path); err == nil { // success
+		return absPath
+	}
+	return path
+}
+
 func main() {
 
 	if len(os.Args) > 1 {
@@ -593,4 +601,7 @@ func main() {
 		}
 		c.Draw()
 	}
+
+	// Write the current directory path to stderr at exit
+	fmt.Fprintln(os.Stderr, s.currentAbsDir())
 }
