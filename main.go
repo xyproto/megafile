@@ -50,6 +50,8 @@ const (
 	angleColor      = vt.LightRed
 	promptColor     = vt.LightGreen
 	headerColor     = vt.LightMagenta
+
+	topLine = uint(1)
 )
 
 func ulen[T string | []rune | []string](xs T) uint {
@@ -382,7 +384,7 @@ func main() {
 			dirIndex:   0,
 			quit:       false,
 			startx:     uint(5),
-			starty:     uint(6),
+			starty:     topLine + uint(4),
 			showHidden: false,
 		}
 	)
@@ -427,17 +429,21 @@ func main() {
 	clearAndPrepare := func() {
 		c.Clear()
 
+		y := topLine
+
 		// the header
-		c.Write(5, 2, headerColor, vt.BackgroundDefault, startMessage)
+		c.Write(5, y, headerColor, vt.BackgroundDefault, startMessage)
+		y++
 
 		// the directory number
-		c.Write(5, 3, vt.LightYellow, vt.BackgroundDefault, fmt.Sprintf("%d [%s]", s.dirIndex, s.dir[s.dirIndex]))
+		c.Write(5, y, vt.LightYellow, vt.BackgroundDefault, fmt.Sprintf("%d [%s]", s.dirIndex, s.dir[s.dirIndex]))
+		y++
 
 		// if files are hidden or not
 		if s.showHidden {
-			c.Write(5, 4, vt.Default, vt.BackgroundDefault, ".")
+			c.Write(5, y, vt.Default, vt.BackgroundDefault, ".")
 		} else {
-			c.Write(5, 4, vt.Default, vt.BackgroundDefault, " ")
+			c.Write(5, y, vt.Default, vt.BackgroundDefault, " ")
 		}
 
 		// the prompt and written text (if any)
