@@ -580,7 +580,7 @@ func main() {
 		case "":
 			continue
 		default:
-			if strings.TrimSpace(key) == "" {
+			if key != " " && strings.TrimSpace(key) == "" {
 				continue
 			}
 			clearWritten()
