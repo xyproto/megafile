@@ -165,6 +165,7 @@ func run2(executableName string, args []string, path string) (string, error) {
 }
 
 // shellRun works okay, but have issues when running ie. "htop"
+// Also, it uses TERM=dumb
 func shellRun(shellCommand, path string) (string, error) {
 	shellExecutable := files.WhichCached(env.Str("SHELL"))
 	if shellExecutable == "" {
@@ -177,7 +178,7 @@ func shellRun(shellCommand, path string) (string, error) {
 	}
 	command := exec.Command(shellExecutable, args...)
 	command.Dir = path
-	command.Env = env.Environ()
+	command.Env = append(env.Environ(), "TERM=dumb")
 	command.Stdin = os.Stdin
 	outBytes, err := command.CombinedOutput()
 	if err != nil {
@@ -573,9 +574,14 @@ func main() {
 		case "c:12": // ctrl-l
 			c.Clear()
 			clearAndPrepare()
-			s.ls(s.dir[s.dirIndex])
-		case "c:0": // ctrl-space
+		case "c:0", "c:20": // ctrl-space, ctrl-t
 			run("tig", []string{}, s.dir[s.dirIndex])
+		case "c:7": // ctrl-g
+			run("lazygit", []string{}, s.dir[s.dirIndex])
+		//case "c:6": // ctrl-r
+		//run("fzf", []string{"a", "b", "c"}, s.dir[s.dirIndex])
+		//case "c:18": // ctrl-f
+		//run("rg", []string{"-n", "-w", string(s.written)}, s.dir[s.dirIndex])
 		case "c:3": // ctrl-c
 			if len(s.written) == 0 {
 				cleanupFunc()
