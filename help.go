@@ -14,6 +14,7 @@ Hotkeys:
 
 tab                 cycle between the 3 different current diretories,
                     or tab completion of directories and filenames.
+ctrl-space          cycle to the previous directory
 ctrl-q              exit program
 ctrl-h or ctrl-o    toggle "show hidden files"
 ctrl-a              start of line
@@ -21,7 +22,10 @@ ctrl-d              delete character under cursor, or exit program
 ctrl-k              delete text to the end of the line
 ctrl-l              clear screen
 ctrl-c              clear text, or exit program
-ctrl-space          run tig
+ctrl-t              run tig
+ctrl-g              run lazygit
+ctrl-n              enter the freshest directory
+ctrl-p              go up one directory
 
 Flags:
 
