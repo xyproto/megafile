@@ -39,8 +39,8 @@ megacli: $(SRCFILES)
 install: megacli
 	mkdir -p "$(DESTDIR)$(PREFIX)/bin"
 	install -m755 megacli "$(DESTDIR)$(PREFIX)/bin/megacli"
-	#mkdir -p "$(DESTDIR)$(MANDIR)"
-	#install -m644 megacli.1.gz "$(DESTDIR)$(MANDIR)/megacli.1.gz"
+	mkdir -p "$(DESTDIR)$(MANDIR)"
+	install -m644 megacli.1.gz "$(DESTDIR)$(MANDIR)/megacli.1.gz"
 
 license:
 	mkdir -p "$(DESTDIR)$(PREFIX)/share/licenses/$(PROJECT)"
