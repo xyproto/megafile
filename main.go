@@ -32,7 +32,7 @@ type State struct {
 }
 
 const (
-	versionString = "MegaCLI 1.0.2"
+	versionString = "MegaCLI 1.0.3"
 
 	startMessage = "---=[ MegaCLI ]=---"
 
