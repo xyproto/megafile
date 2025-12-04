@@ -30,6 +30,6 @@ A simple and colorful TUI shell for Linux, written in Go.
 
 ### General info
 
-* Version: 1.0.6
+* Version: 1.0.7
 * License: BSD-3
 * Author: Alexander F. Rødseth &lt;xyproto@archlinux.org&gt;
