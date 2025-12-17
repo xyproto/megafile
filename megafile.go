@@ -34,18 +34,28 @@ const (
 	topLine = uint(1)
 )
 
+// FileEntry represents a file entry with position and name information
+type FileEntry struct {
+	x           uint
+	y           uint
+	realName    string
+	displayName string
+}
+
 // State holds the current state of the shell, then canvas and the directory structures
 type State struct {
-	c            *vt.Canvas
-	dir          []string
-	dirIndex     uint
-	quit         bool
-	startx       uint
-	starty       uint
-	promptLength uint
-	written      []rune
-	prevdir      []string
-	showHidden   bool
+	c             *vt.Canvas
+	dir           []string
+	dirIndex      uint
+	quit          bool
+	startx        uint
+	starty        uint
+	promptLength  uint
+	written       []rune
+	prevdir       []string
+	showHidden    bool
+	fileEntries   []FileEntry
+	selectedIndex int
 }
 
 var ErrExit = errors.New("exit")
@@ -76,8 +86,49 @@ func (s *State) drawError(text string) {
 	}
 }
 
+func (s *State) highlightSelection() {
+	if len(s.fileEntries) == 0 || s.selectedIndex < 0 {
+		return
+	}
+	if s.selectedIndex >= len(s.fileEntries) {
+		s.selectedIndex = len(s.fileEntries) - 1
+	}
+
+	entry := s.fileEntries[s.selectedIndex]
+	s.c.Write(entry.x, entry.y, vt.Black, vt.BackgroundWhite, entry.displayName)
+}
+
+func (s *State) clearHighlight() {
+	if s.selectedIndex >= 0 && s.selectedIndex < len(s.fileEntries) {
+		entry := s.fileEntries[s.selectedIndex]
+
+		// Redraw with original colors
+		path := filepath.Join(s.dir[s.dirIndex], entry.realName)
+		var color vt.AttributeColor
+
+		if files.IsDir(path) && files.IsSymlink(path) {
+			color = vt.Blue
+		} else if files.IsDir(path) {
+			color = vt.Blue
+		} else if files.IsExecutableCached(path) {
+			color = vt.LightGreen
+		} else if files.IsSymlink(path) {
+			color = vt.LightRed
+		} else if files.IsBinary(path) {
+			color = vt.LightMagenta
+		} else {
+			color = vt.Default
+		}
+
+		s.c.Write(entry.x, entry.y, color, vt.BackgroundDefault, entry.displayName)
+	}
+}
+
 func (s *State) ls(dir string) error {
-	const margin = 1
+	const (
+		margin      = 1
+		columnWidth = 25
+	)
 	var (
 		x            = s.startx
 		y            = s.starty + 1
@@ -88,33 +139,66 @@ func (s *State) ls(dir string) error {
 	if err != nil {
 		return err
 	}
+
+	// Clear file entries for new listing
+	s.fileEntries = []FileEntry{}
+
 	for _, e := range entries {
 		name := e.Name()
 		if !s.showHidden && strings.HasPrefix(name, ".") {
 			continue
 		}
+
+		// Determine display name (truncate if needed)
+		displayName := name
+		if ulen(name) > columnWidth-2 {
+			displayName = string([]rune(name)[:columnWidth-5]) + "..."
+		}
+
+		// Store file entry with position info
+		s.fileEntries = append(s.fileEntries, FileEntry{
+			x:           x,
+			y:           y,
+			realName:    name,
+			displayName: displayName,
+		})
+
 		if ulen(name) > longestSoFar {
 			longestSoFar = ulen(name)
 		}
-		path := filepath.Join(dir, name)
-		if files.IsDir(path) && files.IsSymlink(path) {
-			s.c.Write(x, y, vt.Blue, vt.BackgroundDefault, name)
-			s.c.Write(x+ulen(name), y, vt.White, vt.BackgroundDefault, ">")
-		} else if files.IsDir(path) {
-			s.c.Write(x, y, vt.Blue, vt.BackgroundDefault, name)
-			s.c.Write(x+ulen(name), y, vt.White, vt.BackgroundDefault, "/")
-		} else if files.IsExecutableCached(path) {
-			s.c.Write(x, y, vt.LightGreen, vt.BackgroundDefault, name)
-			s.c.Write(x+ulen(name), y, vt.White, vt.BackgroundDefault, "*")
-		} else if files.IsSymlink(path) {
-			s.c.Write(x, y, vt.LightRed, vt.BackgroundDefault, name)
-			s.c.Write(x+ulen(name), y, vt.White, vt.BackgroundDefault, "^")
-		} else if files.IsBinary(path) {
-			s.c.Write(x, y, vt.LightMagenta, vt.BackgroundDefault, name)
-			s.c.Write(x+ulen(name), y, vt.White, vt.BackgroundDefault, "¤")
-		} else {
-			s.c.Write(x, y, vt.Default, vt.BackgroundDefault, name)
+		if longestSoFar > columnWidth {
+			longestSoFar = columnWidth
 		}
+
+		path := filepath.Join(dir, name)
+		var color vt.AttributeColor
+		var suffix string
+
+		if files.IsDir(path) && files.IsSymlink(path) {
+			color = vt.Blue
+			suffix = ">"
+		} else if files.IsDir(path) {
+			color = vt.Blue
+			suffix = "/"
+		} else if files.IsExecutableCached(path) {
+			color = vt.LightGreen
+			suffix = "*"
+		} else if files.IsSymlink(path) {
+			color = vt.LightRed
+			suffix = "^"
+		} else if files.IsBinary(path) {
+			color = vt.LightMagenta
+			suffix = "¤"
+		} else {
+			color = vt.Default
+			suffix = ""
+		}
+
+		s.c.Write(x, y, color, vt.BackgroundDefault, displayName)
+		if suffix != "" {
+			s.c.Write(x+ulen(displayName), y, vt.White, vt.BackgroundDefault, suffix)
+		}
+
 		y++
 		if y >= s.c.H() {
 			x += longestSoFar + margin
@@ -124,6 +208,12 @@ func (s *State) ls(dir string) error {
 			break
 		}
 	}
+
+	// Reset selection if out of bounds
+	if s.selectedIndex >= len(s.fileEntries) {
+		s.selectedIndex = 0
+	}
+
 	return nil
 }
 
@@ -319,14 +409,16 @@ func MegaFile(c *vt.Canvas, tty *vt.TTY, startdirs []string, startMessage string
 	var (
 		x, y uint
 		s    = &State{
-			c:          c,
-			dir:        startdirs,
-			prevdir:    startdirs,
-			dirIndex:   0,
-			quit:       false,
-			startx:     uint(5),
-			starty:     topLine + uint(4),
-			showHidden: false,
+			c:             c,
+			dir:           startdirs,
+			prevdir:       startdirs,
+			dirIndex:      0,
+			quit:          false,
+			startx:        uint(5),
+			starty:        topLine + uint(4),
+			showHidden:    false,
+			fileEntries:   []FileEntry{},
+			selectedIndex: -1,
 		}
 	)
 
@@ -395,16 +487,26 @@ func MegaFile(c *vt.Canvas, tty *vt.TTY, startdirs []string, startMessage string
 	}
 
 	listDirectory := func() {
+		s.fileEntries = []FileEntry{}
+		s.selectedIndex = -1
 		clearAndPrepare()
 		s.ls(s.dir[s.dirIndex])
 		s.written = []rune{}
 		index = 0
 		clearWritten()
 		drawWritten()
+		if len(s.fileEntries) > 0 {
+			s.selectedIndex = 0
+		}
+		s.highlightSelection()
 	}
 
 	clearAndPrepare()
 	s.ls(s.dir[s.dirIndex])
+	if len(s.fileEntries) > 0 {
+		s.selectedIndex = 0
+		s.highlightSelection()
+	}
 	c.Draw()
 
 	for !s.quit {
@@ -414,7 +516,21 @@ func MegaFile(c *vt.Canvas, tty *vt.TTY, startdirs []string, startMessage string
 			s.quit = true
 		case "c:13": // return
 			if len(s.written) == 0 {
-				listDirectory()
+				// If no text written but file is selected, execute it
+				if s.selectedIndex >= 0 && s.selectedIndex < len(s.fileEntries) {
+					s.clearHighlight()
+					selectedFile := s.fileEntries[s.selectedIndex].realName
+					if changedDirectory, editedFile, err := s.execute(selectedFile, s.dir[s.dirIndex]); err != nil {
+						clearAndPrepare()
+						s.ls(s.dir[s.dirIndex])
+						s.drawError(err.Error())
+						s.highlightSelection()
+					} else if changedDirectory || editedFile {
+						listDirectory()
+					}
+				} else {
+					listDirectory()
+				}
 				break
 			}
 			clearAndPrepare()
@@ -450,14 +566,58 @@ func MegaFile(c *vt.Canvas, tty *vt.TTY, startdirs []string, startMessage string
 				s.written = append(s.written[:index], s.written[index+1:]...)
 				drawWritten()
 			}
-		case "c:1", homeKey, upArrow: // ctrl-a, home, arrow up
-			clearWritten()
-			index = 0
-			drawWritten()
-		case "c:5", endKey, downArrow: // ctrl-e, end, arrow down
-			clearWritten()
-			index = ulen(s.written) // one after the text
-			drawWritten()
+		case "c:1", homeKey: // ctrl-a, home
+			if len(s.written) > 0 {
+				clearWritten()
+				index = 0
+				drawWritten()
+			} else if len(s.fileEntries) > 0 {
+				s.clearHighlight()
+				// Jump to first file
+				s.selectedIndex = 0
+				s.highlightSelection()
+			}
+		case "c:5", endKey: // ctrl-e, end
+			if len(s.written) > 0 {
+				clearWritten()
+				index = ulen(s.written) // one after the text
+				drawWritten()
+			} else if len(s.fileEntries) > 0 {
+				s.clearHighlight()
+				// Jump to last file
+				s.selectedIndex = len(s.fileEntries) - 1
+				s.highlightSelection()
+			}
+		case upArrow:
+			if len(s.written) > 0 {
+				clearWritten()
+				index = 0
+				drawWritten()
+			} else if len(s.fileEntries) > 0 {
+				s.clearHighlight()
+				// Move selection up
+				if s.selectedIndex < 0 {
+					s.selectedIndex = 0
+				} else if s.selectedIndex > 0 {
+					s.selectedIndex--
+				}
+				s.highlightSelection()
+			}
+		case downArrow:
+			if len(s.written) > 0 {
+				clearWritten()
+				index = ulen(s.written) // one after the text
+				drawWritten()
+			} else if len(s.fileEntries) > 0 {
+				s.clearHighlight()
+				// Move selection down
+				if s.selectedIndex < 0 {
+					s.selectedIndex = 0
+				} else if s.selectedIndex < len(s.fileEntries)-1 {
+					s.selectedIndex++
+				}
+				s.highlightSelection()
+			}
 		case leftArrow:
 			clearWritten()
 			if index > 0 {
@@ -569,14 +729,18 @@ func MegaFile(c *vt.Canvas, tty *vt.TTY, startdirs []string, startMessage string
 			}
 			s.written = []rune{}
 			index = 0
+			s.selectedIndex = -1
 			clearWritten()
 			drawWritten() // for the cursor
+			s.highlightSelection()
 		case "":
 			continue
 		default:
 			if key != " " && strings.TrimSpace(key) == "" {
 				continue
 			}
+			// Reset selection when typing
+			s.selectedIndex = -1
 			clearWritten()
 			tmp := append(s.written[:index], []rune(key)...)
 			s.written = append(tmp, s.written[index:]...)
