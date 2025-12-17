@@ -57,6 +57,10 @@ func main() {
 	tty.SetTimeout(10 * time.Millisecond)
 
 	startdirs := []string{".", env.HomeDir(), "/tmp"}
+	if len(os.Args) > 1 {
+		// Use command-line argument as the first directory
+		startdirs = []string{os.Args[1], env.HomeDir(), "/tmp"}
+	}
 	curdir, err := megafile.MegaFile(c, tty, startdirs, startMessage)
 	if err != nil && err != megafile.ErrExit {
 		fmt.Fprintln(os.Stderr, err)

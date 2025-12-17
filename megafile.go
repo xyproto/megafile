@@ -44,18 +44,19 @@ type FileEntry struct {
 
 // State holds the current state of the shell, then canvas and the directory structures
 type State struct {
-	c             *vt.Canvas
-	dir           []string
-	dirIndex      uint
-	quit          bool
-	startx        uint
-	starty        uint
-	promptLength  uint
-	written       []rune
-	prevdir       []string
-	showHidden    bool
-	fileEntries   []FileEntry
-	selectedIndex int
+	c              *vt.Canvas
+	dir            []string
+	dirIndex       uint
+	quit           bool
+	startx         uint
+	starty         uint
+	promptLength   uint
+	written        []rune
+	prevdir        []string
+	showHidden     bool
+	fileEntries    []FileEntry
+	selectedIndex  int
+	selectionMoved bool
 }
 
 // ErrExit is the error that is returned if the user appeared to want to exit
@@ -433,16 +434,17 @@ func MegaFile(c *vt.Canvas, tty *vt.TTY, startdirs []string, startMessage string
 	var (
 		x, y uint
 		s    = &State{
-			c:             c,
-			dir:           startdirs,
-			prevdir:       startdirs,
-			dirIndex:      0,
-			quit:          false,
-			startx:        uint(5),
-			starty:        topLine + uint(4),
-			showHidden:    false,
-			fileEntries:   []FileEntry{},
-			selectedIndex: -1,
+			c:              c,
+			dir:            startdirs,
+			prevdir:        startdirs,
+			dirIndex:       0,
+			quit:           false,
+			startx:         uint(5),
+			starty:         topLine + uint(4),
+			showHidden:     false,
+			fileEntries:    []FileEntry{},
+			selectedIndex:  -1,
+			selectionMoved: false,
 		}
 	)
 
@@ -514,6 +516,7 @@ func MegaFile(c *vt.Canvas, tty *vt.TTY, startdirs []string, startMessage string
 		s.clearHighlight() // Clear old highlight before clearing entries
 		s.fileEntries = []FileEntry{}
 		s.selectedIndex = -1
+		s.selectionMoved = false // Reset selection moved flag
 		clearAndPrepare()
 		s.ls(s.dir[s.dirIndex])
 		s.written = []rune{}
@@ -545,13 +548,22 @@ func MegaFile(c *vt.Canvas, tty *vt.TTY, startdirs []string, startMessage string
 				if s.selectedIndex >= 0 && s.selectedIndex < len(s.fileEntries) {
 					s.clearHighlight()
 					selectedFile := s.fileEntries[s.selectedIndex].realName
+					savedIndex := s.selectedIndex // Save the selection before editing
 					if changedDirectory, editedFile, err := s.execute(selectedFile, s.dir[s.dirIndex]); err != nil {
 						clearAndPrepare()
 						s.ls(s.dir[s.dirIndex])
 						s.drawError(err.Error())
 						s.highlightSelection()
-					} else if changedDirectory || editedFile {
+					} else if changedDirectory {
 						listDirectory()
+					} else if editedFile {
+						// File was edited, restore selection position
+						listDirectory()
+						if savedIndex < len(s.fileEntries) {
+							s.clearHighlight()
+							s.selectedIndex = savedIndex
+							s.highlightSelection()
+						}
 					}
 				} else {
 					listDirectory()
@@ -583,12 +595,44 @@ func MegaFile(c *vt.Canvas, tty *vt.TTY, startdirs []string, startMessage string
 			clearWritten()
 			s.written = append(s.written[:index], s.written[index+1:]...)
 			drawWritten()
+		case pgUpKey: // page up
+			if len(s.fileEntries) > 0 && s.selectedIndex >= 0 {
+				s.selectionMoved = true
+				s.clearHighlight()
+				// Find the first entry in the current column (same x, lowest y)
+				currentX := s.fileEntries[s.selectedIndex].x
+				for i := 0; i < len(s.fileEntries); i++ {
+					if s.fileEntries[i].x == currentX {
+						s.selectedIndex = i
+						break
+					}
+				}
+				s.highlightSelection()
+			}
+		case pgDnKey: // page down
+			if len(s.fileEntries) > 0 && s.selectedIndex >= 0 {
+				s.selectionMoved = true
+				s.clearHighlight()
+				// Find the last entry in the current column (same x, highest y)
+				currentX := s.fileEntries[s.selectedIndex].x
+				lastInColumn := s.selectedIndex
+				for i := s.selectedIndex; i < len(s.fileEntries); i++ {
+					if s.fileEntries[i].x == currentX {
+						lastInColumn = i
+					} else if s.fileEntries[i].x > currentX {
+						break
+					}
+				}
+				s.selectedIndex = lastInColumn
+				s.highlightSelection()
+			}
 		case "c:1", homeKey: // ctrl-a, home
 			if len(s.written) > 0 {
 				clearWritten()
 				index = 0
 				drawWritten()
 			} else if len(s.fileEntries) > 0 {
+				s.selectionMoved = true
 				s.clearHighlight()
 				// Jump to first file
 				s.selectedIndex = 0
@@ -600,6 +644,7 @@ func MegaFile(c *vt.Canvas, tty *vt.TTY, startdirs []string, startMessage string
 				index = ulen(s.written) // one after the text
 				drawWritten()
 			} else if len(s.fileEntries) > 0 {
+				s.selectionMoved = true
 				s.clearHighlight()
 				// Jump to last file
 				s.selectedIndex = len(s.fileEntries) - 1
@@ -611,6 +656,7 @@ func MegaFile(c *vt.Canvas, tty *vt.TTY, startdirs []string, startMessage string
 				index = 0
 				drawWritten()
 			} else if len(s.fileEntries) > 0 {
+				s.selectionMoved = true
 				s.clearHighlight()
 				// Move selection up
 				if s.selectedIndex < 0 {
@@ -626,6 +672,7 @@ func MegaFile(c *vt.Canvas, tty *vt.TTY, startdirs []string, startMessage string
 				index = ulen(s.written) // one after the text
 				drawWritten()
 			} else if len(s.fileEntries) > 0 {
+				s.selectionMoved = true
 				s.clearHighlight()
 				// Move selection down
 				if s.selectedIndex < 0 {
@@ -636,17 +683,76 @@ func MegaFile(c *vt.Canvas, tty *vt.TTY, startdirs []string, startMessage string
 				s.highlightSelection()
 			}
 		case leftArrow:
-			clearWritten()
-			if index > 0 {
-				index--
+			if len(s.written) > 0 {
+				clearWritten()
+				if index > 0 {
+					index--
+				}
+				drawWritten()
+			} else if len(s.fileEntries) > 0 && s.selectedIndex >= 0 {
+				s.selectionMoved = true
+				s.clearHighlight()
+				// Move to previous column (with wraparound)
+				currentEntry := s.fileEntries[s.selectedIndex]
+				currentY := currentEntry.y
+
+				// Find an entry with smaller x at the same y position
+				found := false
+				for i := s.selectedIndex - 1; i >= 0; i-- {
+					if s.fileEntries[i].y == currentY && s.fileEntries[i].x < currentEntry.x {
+						s.selectedIndex = i
+						found = true
+						break
+					}
+				}
+
+				// If not found, wrap around to the rightmost column at this y
+				if !found {
+					maxX := uint(0)
+					for i := 0; i < len(s.fileEntries); i++ {
+						if s.fileEntries[i].y == currentY && s.fileEntries[i].x > maxX {
+							s.selectedIndex = i
+							maxX = s.fileEntries[i].x
+						}
+					}
+				}
+				s.highlightSelection()
 			}
-			drawWritten()
 		case rightArrow:
-			clearWritten()
-			if index < ulen(s.written) {
-				index++
+			if len(s.written) > 0 {
+				clearWritten()
+				if index < ulen(s.written) {
+					index++
+				}
+				drawWritten()
+			} else if len(s.fileEntries) > 0 && s.selectedIndex >= 0 {
+				s.selectionMoved = true
+				s.clearHighlight()
+				// Move to next column (with wraparound)
+				currentEntry := s.fileEntries[s.selectedIndex]
+				currentY := currentEntry.y
+
+				// Find an entry with larger x at the same y position
+				found := false
+				for i := s.selectedIndex + 1; i < len(s.fileEntries); i++ {
+					if s.fileEntries[i].y == currentY && s.fileEntries[i].x > currentEntry.x {
+						s.selectedIndex = i
+						found = true
+						break
+					}
+				}
+
+				// If not found, wrap around to the leftmost column at this y
+				if !found {
+					for i := 0; i < len(s.fileEntries); i++ {
+						if s.fileEntries[i].y == currentY {
+							s.selectedIndex = i
+							break
+						}
+					}
+				}
+				s.highlightSelection()
 			}
-			drawWritten()
 		case "c:15": // ctrl-o, toggle hidden files
 			s.showHidden = !s.showHidden
 			listDirectory()
@@ -677,7 +783,13 @@ func MegaFile(c *vt.Canvas, tty *vt.TTY, startdirs []string, startMessage string
 				index--
 			}
 			drawWritten()
-		case "c:14": // ctrl-n : enter the most recent directory
+		case "c:14": // ctrl-n : cycle directory index forward
+			s.dirIndex++
+			if s.dirIndex >= ulen(s.dir) {
+				s.dirIndex = 0
+			}
+			listDirectory()
+		case "c:0": // ctrl-space : enter the most recent directory
 			if entries, err := os.ReadDir(s.dir[s.dirIndex]); err == nil { // success
 				var youngestTime time.Time
 				var youngestName string
@@ -698,20 +810,60 @@ func MegaFile(c *vt.Canvas, tty *vt.TTY, startdirs []string, startMessage string
 					listDirectory()
 				}
 			}
-		case "c:0": // ctrl-space : cycle directory numbers backwards
-			if s.dirIndex == 0 {
-				s.dirIndex = ulen(s.dir) - 1
-			} else {
-				s.dirIndex--
-			}
-			listDirectory()
-		case "c:9": // tab : cycle directory numbers or tab complete
-			if len(s.written) == 0 {
-				s.dirIndex++
-				if s.dirIndex >= ulen(s.dir) {
-					s.dirIndex = 0
+		case "c:9": // tab : behave like right arrow or tab complete
+			if len(s.written) == 0 && len(s.fileEntries) > 1 {
+				// No text written and more than 1 file, cycle through files
+				if len(s.fileEntries) > 0 && s.selectedIndex >= 0 {
+					s.selectionMoved = true
+					s.clearHighlight()
+					currentEntry := s.fileEntries[s.selectedIndex]
+					currentY := currentEntry.y
+
+					// Find an entry with larger x at the same y position
+					found := false
+					for i := s.selectedIndex + 1; i < len(s.fileEntries); i++ {
+						if s.fileEntries[i].y == currentY && s.fileEntries[i].x > currentEntry.x {
+							s.selectedIndex = i
+							found = true
+							break
+						}
+					}
+
+					// If not found at same row, move to first column of next row
+					if !found {
+						var nextY uint
+						nextRowFound := false
+						// Find the y position of the next row
+						for i := s.selectedIndex + 1; i < len(s.fileEntries); i++ {
+							if s.fileEntries[i].y > currentY {
+								nextY = s.fileEntries[i].y
+								nextRowFound = true
+								break
+							}
+						}
+						// Find the first entry (smallest x) on that next row
+						if nextRowFound {
+							minX := ^uint(0) // max uint value
+							for i := 0; i < len(s.fileEntries); i++ {
+								if s.fileEntries[i].y == nextY && s.fileEntries[i].x < minX {
+									s.selectedIndex = i
+									minX = s.fileEntries[i].x
+									found = true
+								}
+							}
+						}
+					}
+
+					// If still not found, wrap to the very first entry
+					if !found {
+						s.selectedIndex = 0
+					}
+					s.highlightSelection()
 				}
-				listDirectory()
+				break
+			}
+			// Text has been written or only 1 file, do tab completion
+			if len(s.written) == 0 {
 				break
 			}
 			clearWritten()
@@ -752,11 +904,18 @@ func MegaFile(c *vt.Canvas, tty *vt.TTY, startdirs []string, startMessage string
 		case "c:12": // ctrl-l
 			c.Clear()
 			clearAndPrepare()
-		case "c:2", "c:16": // ctrl-b, ctrl-p : go up one directory
+		case "c:2": // ctrl-b : go up one directory
 			if absPath, err := filepath.Abs(filepath.Join(s.dir[s.dirIndex], "..")); err == nil { // success
 				s.setPath(absPath)
 				listDirectory()
 			}
+		case "c:16": // ctrl-p : cycle directory index backward
+			if s.dirIndex == 0 {
+				s.dirIndex = ulen(s.dir) - 1
+			} else {
+				s.dirIndex--
+			}
+			listDirectory()
 		case "c:20": // ctrl-t : tig
 			run("tig", []string{}, s.dir[s.dirIndex])
 		case "c:7": // ctrl-g : lazygit
