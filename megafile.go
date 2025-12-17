@@ -103,25 +103,41 @@ func (s *State) clearHighlight() {
 	if s.selectedIndex >= 0 && s.selectedIndex < len(s.fileEntries) {
 		entry := s.fileEntries[s.selectedIndex]
 
+		// Clear only the area that was actually highlighted (displayName + suffix)
+		clearWidth := ulen(entry.displayName) + 2 // +2 for suffix and safety margin
+		for i := uint(0); i < clearWidth; i++ {
+			s.c.WriteRune(entry.x+i, entry.y, vt.Default, vt.BackgroundDefault, ' ')
+		}
+
 		// Redraw with original colors
 		path := filepath.Join(s.dir[s.dirIndex], entry.realName)
 		var color vt.AttributeColor
+		var suffix string
 
 		if files.IsDir(path) && files.IsSymlink(path) {
 			color = vt.Blue
+			suffix = ">"
 		} else if files.IsDir(path) {
 			color = vt.Blue
+			suffix = "/"
 		} else if files.IsExecutableCached(path) {
 			color = vt.LightGreen
+			suffix = "*"
 		} else if files.IsSymlink(path) {
 			color = vt.LightRed
+			suffix = "^"
 		} else if files.IsBinary(path) {
 			color = vt.LightMagenta
+			suffix = "¤"
 		} else {
 			color = vt.Default
+			suffix = ""
 		}
 
 		s.c.Write(entry.x, entry.y, color, vt.BackgroundDefault, entry.displayName)
+		if suffix != "" {
+			s.c.Write(entry.x+ulen(entry.displayName), entry.y, vt.White, vt.BackgroundDefault, suffix)
+		}
 	}
 }
 
@@ -495,6 +511,7 @@ func MegaFile(c *vt.Canvas, tty *vt.TTY, startdirs []string, startMessage string
 	}
 
 	listDirectory := func() {
+		s.clearHighlight() // Clear old highlight before clearing entries
 		s.fileEntries = []FileEntry{}
 		s.selectedIndex = -1
 		clearAndPrepare()
