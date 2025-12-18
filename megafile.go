@@ -58,6 +58,7 @@ type State struct {
 	selectedIndex  int
 	selectionMoved bool
 	filterPattern  string
+	editor         string // typically $EDITOR
 }
 
 // ErrExit is the error that is returned if the user appeared to want to exit
@@ -331,7 +332,7 @@ func (s *State) confirmBinaryEdit(tty *vt.TTY, filename string) bool {
 }
 
 func (s *State) edit(filename, path string) error {
-	editorPath, err := exec.LookPath(env.Str("EDITOR"))
+	editorPath, err := exec.LookPath(s.editor)
 	if err != nil {
 		return err
 	}
@@ -539,7 +540,7 @@ func Cleanup(c *vt.Canvas) {
 // startMessage is the string to display at the top of the screen
 // the function returns the absolute path to the directory the user ended up in,
 // and an error if something went wrong
-func MegaFile(c *vt.Canvas, tty *vt.TTY, startdirs []string, startMessage string) (string, error) {
+func MegaFile(c *vt.Canvas, tty *vt.TTY, startdirs []string, startMessage, editor string) (string, error) {
 	var (
 		x, y uint
 		s    = &State{
@@ -555,6 +556,7 @@ func MegaFile(c *vt.Canvas, tty *vt.TTY, startdirs []string, startMessage string
 			selectedIndex:  -1,
 			selectionMoved: false,
 			filterPattern:  "",
+			editor:         editor,
 		}
 	)
 
