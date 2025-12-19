@@ -39,26 +39,30 @@ type FileEntry struct {
 
 // State holds the current state of the shell, then canvas and the directory structures
 type State struct {
-	canvas         *vt.Canvas
-	tty            *vt.TTY
-	dirIndex       uint
-	quit           bool
-	startx         uint
-	starty         uint
-	promptLength   uint
-	written        []rune
-	prevdir        []string
-	fileEntries    []FileEntry
-	selectedIndex  int
-	selectionMoved bool
-	filterPattern  string
-	editor         string // typically $EDITOR
-	ShowHidden     bool
-	Directories    []string
-	StartMessage   string // title/header
-	AngleColor     vt.AttributeColor
-	PromptColor    vt.AttributeColor
-	TitleColor     vt.AttributeColor
+	canvas              *vt.Canvas
+	tty                 *vt.TTY
+	dirIndex            uint
+	quit                bool
+	startx              uint
+	starty              uint
+	promptLength        uint
+	written             []rune
+	prevdir             []string
+	fileEntries         []FileEntry
+	selectedIndex       int
+	selectionMoved      bool
+	filterPattern       string
+	editor              string // typically $EDITOR
+	ShowHidden          bool
+	Directories         []string
+	StartMessage        string // title/header
+	AngleColor          vt.AttributeColor
+	PromptColor         vt.AttributeColor
+	TitleColor          vt.AttributeColor
+	HighlightBackground vt.AttributeColor
+	Background          vt.AttributeColor
+	EdgeBackground      vt.AttributeColor
+	WrittenTextColor    vt.AttributeColor
 }
 
 // ErrExit is the error that is returned if the user appeared to want to exit
@@ -74,7 +78,7 @@ func (s *State) drawOutput(text string, tty *vt.TTY) {
 	y := s.starty + 1
 	for _, line := range lines {
 		vt.SetXY(x, y)
-		s.canvas.Write(x, y, vt.Default, vt.BackgroundDefault, strings.TrimSpace(line))
+		s.canvas.Write(x, y, vt.Default, s.Background, strings.TrimSpace(line))
 		y++
 	}
 	s.canvas.Draw()
@@ -88,7 +92,7 @@ func (s *State) drawError(text string) {
 	y := s.starty + 1
 	for _, line := range lines {
 		vt.SetXY(x, y)
-		s.canvas.Write(x, y, vt.Red, vt.BackgroundDefault, line)
+		s.canvas.Write(x, y, vt.Red, s.Background, line)
 		y++
 	}
 }
@@ -102,7 +106,7 @@ func (s *State) highlightSelection() {
 	}
 
 	entry := s.fileEntries[s.selectedIndex]
-	s.canvas.Write(entry.x, entry.y, vt.Black, vt.BackgroundWhite, entry.displayName)
+	s.canvas.Write(entry.x, entry.y, vt.Black, s.HighlightBackground, entry.displayName)
 }
 
 func (s *State) clearHighlight() {
@@ -112,7 +116,7 @@ func (s *State) clearHighlight() {
 		// Clear only the area that was actually highlighted (displayName + suffix)
 		clearWidth := ulen(entry.displayName) + 2 // +2 for suffix and safety margin
 		for i := uint(0); i < clearWidth; i++ {
-			s.canvas.WriteRune(entry.x+i, entry.y, vt.Default, vt.BackgroundDefault, ' ')
+			s.canvas.WriteRune(entry.x+i, entry.y, vt.Default, s.Background, ' ')
 		}
 
 		// Redraw with original colors
@@ -140,9 +144,9 @@ func (s *State) clearHighlight() {
 			suffix = ""
 		}
 
-		s.canvas.Write(entry.x, entry.y, color, vt.BackgroundDefault, entry.displayName)
+		s.canvas.Write(entry.x, entry.y, color, s.Background, entry.displayName)
 		if suffix != "" {
-			s.canvas.Write(entry.x+ulen(entry.displayName), entry.y, vt.White, vt.BackgroundDefault, suffix)
+			s.canvas.Write(entry.x+ulen(entry.displayName), entry.y, vt.White, s.Background, suffix)
 		}
 	}
 }
@@ -238,9 +242,9 @@ func (s *State) ls(dir string) (int, error) {
 			suffix = ""
 		}
 
-		s.canvas.Write(x, y, color, vt.BackgroundDefault, displayName)
+		s.canvas.Write(x, y, color, s.Background, displayName)
 		if suffix != "" {
-			s.canvas.Write(x+ulen(displayName), y, vt.White, vt.BackgroundDefault, suffix)
+			s.canvas.Write(x+ulen(displayName), y, vt.White, s.Background, suffix)
 		}
 
 		y++
@@ -277,28 +281,28 @@ func (s *State) confirmBinaryEdit(tty *vt.TTY, filename string) bool {
 
 	// Draw fancy ASCII art dialog box
 	// Top border
-	c.Write(startX, startY, vt.LightCyan, vt.BackgroundDefault, "╔")
+	c.Write(startX, startY, vt.LightCyan, s.EdgeBackground, "╔")
 	for i := uint(1); i < boxWidth-1; i++ {
-		c.Write(startX+i, startY, vt.LightCyan, vt.BackgroundDefault, "═")
+		c.Write(startX+i, startY, vt.LightCyan, s.EdgeBackground, "═")
 	}
-	c.Write(startX+boxWidth-1, startY, vt.LightCyan, vt.BackgroundDefault, "╗")
+	c.Write(startX+boxWidth-1, startY, vt.LightCyan, s.EdgeBackground, "╗")
 
 	// Middle rows
 	for i := uint(1); i < boxHeight-1; i++ {
-		c.Write(startX, startY+i, vt.LightCyan, vt.BackgroundDefault, "║")
+		c.Write(startX, startY+i, vt.LightCyan, s.EdgeBackground, "║")
 		// Clear the middle
 		for j := uint(1); j < boxWidth-1; j++ {
-			c.WriteRune(startX+j, startY+i, vt.Default, vt.BackgroundDefault, ' ')
+			c.WriteRune(startX+j, startY+i, vt.Default, s.EdgeBackground, ' ')
 		}
-		c.Write(startX+boxWidth-1, startY+i, vt.LightCyan, vt.BackgroundDefault, "║")
+		c.Write(startX+boxWidth-1, startY+i, vt.LightCyan, s.EdgeBackground, "║")
 	}
 
 	// Bottom border
-	c.Write(startX, startY+boxHeight-1, vt.LightCyan, vt.BackgroundDefault, "╚")
+	c.Write(startX, startY+boxHeight-1, vt.LightCyan, s.EdgeBackground, "╚")
 	for i := uint(1); i < boxWidth-1; i++ {
-		c.Write(startX+i, startY+boxHeight-1, vt.LightCyan, vt.BackgroundDefault, "═")
+		c.Write(startX+i, startY+boxHeight-1, vt.LightCyan, s.EdgeBackground, "═")
 	}
-	c.Write(startX+boxWidth-1, startY+boxHeight-1, vt.LightCyan, vt.BackgroundDefault, "╝")
+	c.Write(startX+boxWidth-1, startY+boxHeight-1, vt.LightCyan, s.EdgeBackground, "╝")
 
 	// First line: filename is a binary file
 	maxNameLen := int(boxWidth - 20) // Leave room for " is a binary file"
@@ -308,17 +312,17 @@ func (s *State) confirmBinaryEdit(tty *vt.TTY, filename string) bool {
 	}
 	line1 := displayName + " is binary and executable"
 	line1X := startX + (boxWidth-uint(len(line1)))/2
-	c.Write(line1X, startY+2, vt.LightYellow, vt.BackgroundDefault, line1)
+	c.Write(line1X, startY+2, vt.LightYellow, s.Background, line1)
 
 	// Second line: do you really want to edit it?
 	line2 := "Do you really want to edit it?"
 	line2X := startX + (boxWidth-uint(len(line2)))/2
-	c.Write(line2X, startY+4, vt.Default, vt.BackgroundDefault, line2)
+	c.Write(line2X, startY+4, vt.Default, s.Background, line2)
 
 	// Third line: instruction
 	line3 := "Press y or return to edit or any other key to cancel."
 	line3X := startX + (boxWidth-uint(len(line3)))/2
-	c.Write(line3X, startY+6, vt.LightGreen, vt.BackgroundDefault, line3)
+	c.Write(line3X, startY+6, vt.LightGreen, s.Background, line3)
 
 	c.Draw()
 
@@ -556,24 +560,28 @@ func Cleanup(c *vt.Canvas) {
 // and an error if something went wrong
 func New(c *vt.Canvas, tty *vt.TTY, startdirs []string, startMessage, editor string) *State {
 	return &State{
-		canvas:         c,
-		tty:            tty,
-		prevdir:        startdirs,
-		dirIndex:       0,
-		quit:           false,
-		startx:         uint(5),
-		starty:         topLine + uint(4),
-		fileEntries:    []FileEntry{},
-		selectedIndex:  -1,
-		selectionMoved: false,
-		filterPattern:  "",
-		editor:         editor,
-		ShowHidden:     false,
-		Directories:    startdirs,
-		StartMessage:   startMessage,
-		AngleColor:     vt.LightRed,
-		PromptColor:    vt.LightGreen,
-		TitleColor:     vt.LightMagenta,
+		canvas:              c,
+		tty:                 tty,
+		prevdir:             startdirs,
+		dirIndex:            0,
+		quit:                false,
+		startx:              uint(5),
+		starty:              topLine + uint(4),
+		fileEntries:         []FileEntry{},
+		selectedIndex:       -1,
+		selectionMoved:      false,
+		filterPattern:       "",
+		editor:              editor,
+		ShowHidden:          false,
+		Directories:         startdirs,
+		StartMessage:        startMessage,
+		AngleColor:          vt.LightRed,
+		PromptColor:         vt.LightGreen,
+		TitleColor:          vt.LightMagenta,
+		Background:          vt.BackgroundDefault,
+		HighlightBackground: vt.BackgroundWhite,
+		EdgeBackground:      vt.BackgroundDefault,
+		WrittenTextColor:    vt.LightYellow,
 	}
 }
 
@@ -589,10 +597,10 @@ func (s *State) Run() (string, error) {
 			prompt = s.Directories[s.dirIndex] //+ "> "
 		}
 		prompt = strings.Replace(prompt, env.HomeDir(), "~", 1)
-		c.Write(s.startx, s.starty, s.PromptColor, vt.BackgroundDefault, prompt)
+		c.Write(s.startx, s.starty, s.PromptColor, s.Background, prompt)
 		s.promptLength = ulen([]rune(prompt)) + 2 // +2 for > and " "
-		c.WriteRune(s.startx+s.promptLength-2, s.starty, s.AngleColor, vt.BackgroundDefault, '>')
-		c.WriteRune(s.startx+s.promptLength-1, s.starty, vt.Default, vt.BackgroundDefault, ' ')
+		c.WriteRune(s.startx+s.promptLength-2, s.starty, s.AngleColor, s.Background, '>')
+		c.WriteRune(s.startx+s.promptLength-1, s.starty, vt.Default, s.Background, ' ')
 	}
 
 	// The rune index for the text that has been written
@@ -601,7 +609,7 @@ func (s *State) Run() (string, error) {
 	drawWritten := func() {
 		x = s.startx + s.promptLength
 		y = s.starty
-		c.Write(x, y, vt.LightYellow, vt.BackgroundDefault, string(s.written))
+		c.Write(x, y, s.WrittenTextColor, s.Background, string(s.written))
 		r := rune(' ')
 		if index < ulen(s.written) {
 			r = s.written[index]
@@ -613,7 +621,7 @@ func (s *State) Run() (string, error) {
 	clearWritten := func() {
 		y := s.starty
 		for x := s.startx + s.promptLength; x < c.W(); x++ {
-			c.WriteRune(x, y, vt.LightYellow, vt.BackgroundDefault, ' ')
+			c.WriteRune(x, y, vt.Default, s.Background, ' ')
 		}
 		vt.SetXY(x, y)
 	}
@@ -624,18 +632,18 @@ func (s *State) Run() (string, error) {
 		y := topLine
 
 		// the title
-		c.Write(5, y, s.TitleColor, vt.BackgroundDefault, s.StartMessage)
+		c.Write(5, y, s.TitleColor, s.Background, s.StartMessage)
 		y++
 
 		// the directory number
-		c.Write(5, y, vt.LightYellow, vt.BackgroundDefault, fmt.Sprintf("%d [%s]", s.dirIndex, s.Directories[s.dirIndex]))
+		c.Write(5, y, vt.LightYellow, s.Background, fmt.Sprintf("%d [%s]", s.dirIndex, s.Directories[s.dirIndex]))
 		y++
 
 		// if files are hidden or not
 		if s.ShowHidden {
-			c.Write(5, y, vt.Default, vt.BackgroundDefault, ".")
+			c.Write(5, y, vt.Default, s.Background, ".")
 		} else {
-			c.Write(5, y, vt.Default, vt.BackgroundDefault, " ")
+			c.Write(5, y, vt.Default, s.Background, " ")
 		}
 
 		// the prompt and written text (if any)
