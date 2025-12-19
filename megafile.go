@@ -186,7 +186,7 @@ func (s *State) ls(dir string) (int, error) {
 				}
 			} else {
 				// Use simple prefix matching for plain text
-				matched = strings.HasPrefix(name, s.filterPattern)
+				matched = strings.HasPrefix(strings.ToLower(name), strings.ToLower(s.filterPattern))
 			}
 			if !matched {
 				continue
@@ -227,7 +227,7 @@ func (s *State) ls(dir string) (int, error) {
 		} else if files.IsExecutableCached(path) {
 			color = vt.LightGreen
 			suffix = "*"
-		} else if files.IsSymlink(path) {
+		} else if files.IsSymlink(path) { // not a directory symlink
 			color = vt.LightRed
 			suffix = "^"
 		} else if files.IsBinary(path) {
@@ -660,12 +660,27 @@ func MegaFile(c *vt.Canvas, tty *vt.TTY, startdirs []string, startMessage, edito
 		key := tty.String()
 		switch key {
 		case "c:27": // esc
-			// If selection is active, clear it; otherwise quit
 			if s.selectedIndex >= 0 {
+				// If a file selection is active, clear it
 				s.clearHighlight()
 				s.selectedIndex = -1
 				c.Draw()
+				break
+			}
+			if s.filterPattern != "" || len(s.written) > 0 {
+				// If a file filter is active, clear it
+				s.filterPattern = ""
+				// Clear the written text
+				s.written = []rune{}
+				index = 0
+				// Clear and redraw everything
+				clearWritten()
+				c.Clear()
+				clearAndPrepare()
+				s.ls(s.dir[s.dirIndex])
+				c.Draw()
 			} else {
+				// Quit the program
 				s.quit = true
 			}
 		case "c:17": // ctrl-q
@@ -738,7 +753,6 @@ func MegaFile(c *vt.Canvas, tty *vt.TTY, startdirs []string, startMessage, edito
 				s.ls(s.dir[s.dirIndex])
 			}
 			drawWritten() // for the cursor
-
 		case "c:11": // ctrl-k
 			clearWritten()
 			if len(s.written) > 0 {
@@ -883,7 +897,6 @@ func MegaFile(c *vt.Canvas, tty *vt.TTY, startdirs []string, startMessage, edito
 				// Move to previous column (with wraparound)
 				currentEntry := s.fileEntries[s.selectedIndex]
 				currentY := currentEntry.y
-
 				// Find an entry with smaller x at the same y position
 				found := false
 				for i := s.selectedIndex - 1; i >= 0; i-- {
@@ -893,7 +906,6 @@ func MegaFile(c *vt.Canvas, tty *vt.TTY, startdirs []string, startMessage, edito
 						break
 					}
 				}
-
 				// If not found, wrap around to the rightmost column at this y
 				if !found {
 					maxX := uint(0)
@@ -919,7 +931,6 @@ func MegaFile(c *vt.Canvas, tty *vt.TTY, startdirs []string, startMessage, edito
 				// Move to next column (with wraparound)
 				currentEntry := s.fileEntries[s.selectedIndex]
 				currentY := currentEntry.y
-
 				// Find an entry with larger x at the same y position
 				found := false
 				for i := s.selectedIndex + 1; i < len(s.fileEntries); i++ {
@@ -929,7 +940,6 @@ func MegaFile(c *vt.Canvas, tty *vt.TTY, startdirs []string, startMessage, edito
 						break
 					}
 				}
-
 				// If not found, wrap around to the leftmost column at this y
 				if !found {
 					for i := 0; i < len(s.fileEntries); i++ {
