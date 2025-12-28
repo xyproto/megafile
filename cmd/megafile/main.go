@@ -15,9 +15,9 @@ import (
 )
 
 const (
-	versionString = "MegaFile 1.2.8"
+	versionString = "MegaFile 1.2.9"
 
-	startMessage = "--––—==[ MegaFile ]==—––--"
+	startMessage = "·-––—==[ MegaFile ]==—––-·"
 )
 
 func main() {
