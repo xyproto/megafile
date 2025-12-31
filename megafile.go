@@ -552,6 +552,12 @@ func Cleanup(c *vt.Canvas) {
 	vt.ShowCursor(true)
 }
 
+func dupli(xs []string) []string {
+	tmp := make([]string, len(xs))
+	copy(tmp, xs)
+	return tmp
+}
+
 // New creates a new MegaFile State
 // c and tty is a canvas and TTY, initiated with the vt package
 // startdirs is a slice of directories to browse (toggle with tab)
@@ -559,12 +565,10 @@ func Cleanup(c *vt.Canvas) {
 // the function returns the absolute path to the directory the user ended up in,
 // and an error if something went wrong
 func New(c *vt.Canvas, tty *vt.TTY, startdirs []string, startMessage, editor string) *State {
-	prevdir := make([]string, len(startdirs))
-	copy(prevdir, startdirs)
 	return &State{
 		canvas:              c,
 		tty:                 tty,
-		prevdir:             prevdir,
+		prevdir:             dupli(startdirs),
 		dirIndex:            0,
 		quit:                false,
 		startx:              uint(5),
