@@ -83,7 +83,7 @@ func (s *State) drawOutput(text string, tty *vt.TTY) {
 	}
 	s.canvas.Draw()
 	// Wait for a key press before continuing
-	tty.String()
+	_ = tty.String()
 }
 
 func (s *State) drawError(text string) {
