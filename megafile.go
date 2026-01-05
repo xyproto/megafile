@@ -35,6 +35,9 @@ type FileEntry struct {
 	displayName string
 	x           uint
 	y           uint
+	selected    bool
+	color       vt.AttributeColor
+	suffix      string
 }
 
 // State holds the current state of the shell, then canvas and the directory structures
@@ -149,48 +152,28 @@ func (s *State) highlightSelection() {
 		s.setSelectedIndex(len(s.fileEntries) - 1)
 	}
 
-	entry := s.fileEntries[s.selectedIndex()]
+	entry := &s.fileEntries[s.selectedIndex()]
 	s.canvas.Write(entry.x, entry.y, vt.Black, s.HighlightBackground, entry.displayName)
+	entry.selected = true
 }
 
 func (s *State) clearHighlight() {
-	if s.selectedIndex() >= 0 && s.selectedIndex() < len(s.fileEntries) {
-		entry := s.fileEntries[s.selectedIndex()]
+	for i := range s.fileEntries {
+		entry := &s.fileEntries[i]
+		if entry.selected {
+			// Clear only the area that was actually highlighted (displayName + suffix)
+			clearWidth := ulen(entry.displayName) + 2 // +2 for suffix and safety margin
+			for i := uint(0); i < clearWidth; i++ {
+				s.canvas.WriteRune(entry.x+i, entry.y, vt.Default, s.Background, ' ')
+			}
 
-		// Clear only the area that was actually highlighted (displayName + suffix)
-		clearWidth := ulen(entry.displayName) + 2 // +2 for suffix and safety margin
-		for i := uint(0); i < clearWidth; i++ {
-			s.canvas.WriteRune(entry.x+i, entry.y, vt.Default, s.Background, ' ')
-		}
-
-		// Redraw with original colors
-		path := filepath.Join(s.Directories[s.dirIndex], entry.realName)
-		var color vt.AttributeColor
-		var suffix string
-
-		if files.IsDir(path) && files.IsSymlink(path) {
-			color = vt.Blue
-			suffix = ">"
-		} else if files.IsDir(path) {
-			color = vt.Blue
-			suffix = "/"
-		} else if files.IsExecutableCached(path) {
-			color = vt.LightGreen
-			suffix = "*"
-		} else if files.IsSymlink(path) {
-			color = vt.LightRed
-			suffix = "^"
-		} else if files.IsBinary(path) {
-			color = vt.LightMagenta
-			suffix = "¤"
-		} else {
-			color = vt.Default
-			suffix = ""
-		}
-
-		s.canvas.Write(entry.x, entry.y, color, s.Background, entry.displayName)
-		if suffix != "" {
-			s.canvas.Write(entry.x+ulen(entry.displayName), entry.y, vt.White, s.Background, suffix)
+			// Redraw with original colors
+			s.canvas.Write(entry.x, entry.y, entry.color, s.Background, entry.displayName)
+			if entry.suffix != "" {
+				s.canvas.Write(entry.x+ulen(entry.displayName), entry.y, vt.White, s.Background, entry.suffix)
+			}
+			entry.selected = false
+			return
 		}
 	}
 }
@@ -247,14 +230,6 @@ func (s *State) ls(dir string) (int, error) {
 			displayName = string([]rune(name)[:columnWidth-5]) + "..."
 		}
 
-		// Store file entry with position info
-		s.fileEntries = append(s.fileEntries, FileEntry{
-			x:           x,
-			y:           y,
-			realName:    name,
-			displayName: displayName,
-		})
-
 		if ulen(name) > longestSoFar {
 			longestSoFar = ulen(name)
 		}
@@ -285,6 +260,16 @@ func (s *State) ls(dir string) (int, error) {
 			color = vt.Default
 			suffix = ""
 		}
+
+		// Store file entry with position info
+		s.fileEntries = append(s.fileEntries, FileEntry{
+			x:           x,
+			y:           y,
+			realName:    name,
+			displayName: displayName,
+			color:       color,
+			suffix:      suffix,
+		})
 
 		s.canvas.Write(x, y, color, s.Background, displayName)
 		if suffix != "" {
@@ -714,9 +699,9 @@ func (s *State) Run() (string, error) {
 	}
 
 	listDirectory := func() {
+		s.clearHighlight()
 		s.fileEntries = []FileEntry{}
 		found := s.setSelectedIndexIfMissing(-1)
-		s.clearHighlight()       // Clear old highlight before clearing entries
 		s.selectionMoved = found // Reset selection moved flag
 		s.filterPattern = ""     // Clear filter when changing directories
 		clearAndPrepare()
@@ -1143,6 +1128,7 @@ func (s *State) Run() (string, error) {
 			clearWritten()
 			drawWritten()
 		case "c:14": // ctrl-n : cycle directory index forward
+			s.clearHighlight()
 			s.dirIndex++
 			if s.dirIndex >= ulen(s.Directories) {
 				s.dirIndex = 0
