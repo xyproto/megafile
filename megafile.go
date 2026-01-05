@@ -125,12 +125,12 @@ func (s *State) incSelectedIndex() {
 }
 
 // Set the selected index to the given value, but only if it is currently missing or -1
-func (s *State) setSelectedIndexIfMissing(index int) {
-	val, ok := s.selectedIndexPerDirectory[s.Directories[s.dirIndex]]
-	if !ok || val == -1 {
+func (s *State) setSelectedIndexIfMissing(index int) bool {
+	if val, ok := s.selectedIndexPerDirectory[s.Directories[s.dirIndex]]; !ok || val == -1 {
 		s.selectedIndexPerDirectory[s.Directories[s.dirIndex]] = index
+		return false // not found
 	}
-
+	return true // found
 }
 
 // Load the index from the cache, or set the given defaultIndex
@@ -300,6 +300,8 @@ func (s *State) ls(dir string) (int, error) {
 			break
 		}
 	}
+
+	s.setSelectedIndexIfMissing(-1)
 
 	// Reset selection if out of bounds
 	if s.selectedIndex() >= len(s.fileEntries) {
@@ -712,10 +714,10 @@ func (s *State) Run() (string, error) {
 	}
 
 	listDirectory := func() {
-		s.clearHighlight() // Clear old highlight before clearing entries
 		s.fileEntries = []FileEntry{}
-		s.setSelectedIndexIfMissing(-1)
-		s.selectionMoved = false // Reset selection moved flag
+		found := s.setSelectedIndexIfMissing(-1)
+		s.clearHighlight()       // Clear old highlight before clearing entries
+		s.selectionMoved = found // Reset selection moved flag
 		s.filterPattern = ""     // Clear filter when changing directories
 		clearAndPrepare()
 		s.ls(s.Directories[s.dirIndex])
@@ -723,10 +725,14 @@ func (s *State) Run() (string, error) {
 		index = 0
 		clearWritten()
 		drawWritten()
+		if found {
+			s.highlightSelection()
+		}
 	}
 
 	clearAndPrepare()
 	s.ls(s.Directories[s.dirIndex])
+
 	c.Draw()
 
 	for !s.quit {
