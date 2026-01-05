@@ -31,30 +31,28 @@ const (
 
 // FileEntry represents a file entry with position and name information
 type FileEntry struct {
-	x           uint
-	y           uint
 	realName    string
 	displayName string
+	x           uint
+	y           uint
 }
 
 // State holds the current state of the shell, then canvas and the directory structures
 type State struct {
 	canvas                    *vt.Canvas
 	tty                       *vt.TTY
-	dirIndex                  uint
-	quit                      bool
-	startx                    uint
-	starty                    uint
-	promptLength              uint
+	selectedIndexPerDirectory map[string]int
+	filterPattern             string
+	editor                    string // typically $EDITOR
+	StartMessage              string // title/header
 	written                   []rune
 	prevdir                   []string
 	fileEntries               []FileEntry
-	selectionMoved            bool
-	filterPattern             string
-	editor                    string // typically $EDITOR
-	ShowHidden                bool
 	Directories               []string
-	StartMessage              string // title/header
+	dirIndex                  uint
+	startx                    uint
+	starty                    uint
+	promptLength              uint
 	AngleColor                vt.AttributeColor
 	PromptColor               vt.AttributeColor
 	TitleColor                vt.AttributeColor
@@ -62,7 +60,9 @@ type State struct {
 	Background                vt.AttributeColor
 	EdgeBackground            vt.AttributeColor
 	WrittenTextColor          vt.AttributeColor
-	selectedIndexPerDirectory map[string]int
+	quit                      bool
+	selectionMoved            bool
+	ShowHidden                bool
 }
 
 // ErrExit is the error that is returned if the user appeared to want to exit
