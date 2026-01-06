@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	versionString = "MegaFile 1.3.3"
+	versionString = "MegaFile 1.3.4"
 
 	startMessage = "·-––—==[ MegaFile ]==—––-·"
 )
