@@ -460,7 +460,7 @@ func (s *State) edit(filename, path string) (string, error) {
 	// Add -y and -w flags for the "o" editor
 	// -y is to make it so that ctrl-n and ctrl-p will cycle filenames
 	// -w is to make it so that esc will quit the editor
-	if filepath.Base(editorPath) == "o" {
+	if filepath.Base(editorPath) == "o" || filepath.Base(editorPath) == "orbiton" {
 		args = append(args, "-y", "-w")
 	}
 	args = append(args, filename)
