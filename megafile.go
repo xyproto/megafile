@@ -455,7 +455,10 @@ func (s *State) edit(filename, path string) (string, error) {
 	}
 	editorPath, err := exec.LookPath(executableName)
 	if err != nil {
-		return "", err
+		editorPath = executableName
+		if !files.Executable(editorPath) {
+			return "", err
+		}
 	}
 	// Add -y and -w flags for the "o" editor
 	// -y is to make it so that ctrl-n and ctrl-p will cycle filenames
