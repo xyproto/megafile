@@ -855,6 +855,7 @@ func (s *State) Run() (string, error) {
 			// If a file is selected (via arrow keys), execute it regardless of text
 			// unless it was auto-selected, then there must be no text
 			if s.selectedIndex() >= 0 && s.selectedIndex() < len(s.fileEntries) && okToAutoSelect {
+			AGAIN:
 				s.clearHighlight()
 				selectedFile := s.fileEntries[s.selectedIndex()].realName
 				savedFilename := selectedFile // Save the filename before editing
@@ -875,12 +876,14 @@ func (s *State) Run() (string, error) {
 							case NextFile:
 								if (i + 1) < len(s.fileEntries) {
 									s.setSelectedIndex(i + 1)
+									goto AGAIN
 								} else {
 									s.setSelectedIndex(i)
 								}
 							case PreviousFile:
 								if (i - 1) >= 0 {
 									s.setSelectedIndex(i - 1)
+									goto AGAIN
 								} else {
 									s.setSelectedIndex(i)
 								}
