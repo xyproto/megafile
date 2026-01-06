@@ -6,8 +6,8 @@ github.com/xyproto/burnfont v1.2.3 h1:4MHSRrmVqZT8i1XmDrEG/5qcg2G1bSEDlOoO3BCl11
 github.com/xyproto/burnfont v1.2.3/go.mod h1:NlQwt/VHpxq17k8CkHcWvWTGhBim818XB4onh+TeZRo=
 github.com/xyproto/env/v2 v2.5.3 h1:H/Fd1OAld+sPQrPKpAEkfwF3xn7eZiFys2QeH7c7oFE=
 github.com/xyproto/env/v2 v2.5.3/go.mod h1:F81ZEzu15s3TWUZJ1uzBl9iNeq9zcfHvxMkQJaLZUl0=
-github.com/xyproto/files v1.9.1 h1:wAIPn7Npxzvo5NBbef4zPZdDDOzIk2qAwkErGxSCh7s=
-github.com/xyproto/files v1.9.1/go.mod h1:qdjxPTPCNWG4Gk83G6QgDE0Vbzx9zcxc6eTMSaG+INU=
+github.com/xyproto/files v1.9.3 h1:/0zQWy3G30wPPzf5f6yyqYoetvvtRj2GpxcPCcD0a1k=
+github.com/xyproto/files v1.9.3/go.mod h1:qdjxPTPCNWG4Gk83G6QgDE0Vbzx9zcxc6eTMSaG+INU=
 github.com/xyproto/vt v1.2.10 h1:ugCjHb/tjqs4ZZfBMQWjdsJUMOHQXBMzOy4UNnJ7/0c=
 github.com/xyproto/vt v1.2.10/go.mod h1:0LTYaTETH+6U5kG7sr/BgKaQlFojkfkzE+c5XD/+iQE=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=

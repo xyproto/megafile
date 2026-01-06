@@ -1,10 +1,10 @@
 module github.com/xyproto/megafile
 
-go 1.25.3
+go 1.24.4
 
 require (
 	github.com/xyproto/env/v2 v2.5.3
-	github.com/xyproto/files v1.9.1
+	github.com/xyproto/files v1.9.3
 	github.com/xyproto/vt v1.2.10
 )
 
