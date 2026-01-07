@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	versionString = "MegaFile 1.3.8"
+	versionString = "MegaFile 1.3.9"
 	//header = "·-––—==[ MegaFile ]==—––-·"
 	header = ""
 )
