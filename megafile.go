@@ -752,8 +752,8 @@ func dupli(xs []string) []string {
 	return tmp
 }
 
-// Run launches a file browser
-func (s *State) Run() (string, error) {
+// Run launches a file browser and returns the currently selected directories when it is done running
+func (s *State) Run() ([]string, error) {
 	var x, y uint
 	c := s.canvas
 	drawPrompt := func() {
@@ -1020,7 +1020,7 @@ func (s *State) Run() (string, error) {
 		case "c:4": // ctrl-d
 			if len(s.written) == 0 {
 				Cleanup(c)
-				return s.currentAbsDir(), ErrExit
+				return s.Directories, ErrExit
 			}
 			clearWritten()
 			s.written = append(s.written[:index], s.written[index+1:]...)
@@ -1490,7 +1490,7 @@ func (s *State) Run() (string, error) {
 		case "c:3": // ctrl-c
 			if len(s.written) == 0 {
 				Cleanup(c)
-				return s.currentAbsDir(), ErrExit
+				return s.Directories, ErrExit
 			}
 			s.written = []rune{}
 			index = 0
@@ -1530,5 +1530,5 @@ func (s *State) Run() (string, error) {
 	}
 
 	Cleanup(c)
-	return s.currentAbsDir(), nil
+	return s.Directories, nil
 }
