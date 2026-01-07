@@ -40,7 +40,8 @@ Directory Navigation:
   ctrl-b            go to parent directory
 
 Display:
-  ctrl-o            toggle show hidden files
+  ctrl-h            toggle hidden files
+  ctrl-o            show more information about the selected file
   ctrl-l            clear screen
 
 External Tools:
