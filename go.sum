@@ -1,3 +1,5 @@
+github.com/dustin/go-humanize v1.0.1 h1:GzkhY7T5VNhEkwH0PVJgjz+fX1rhBrR7pRT3mDkpeCY=
+github.com/dustin/go-humanize v1.0.1/go.mod h1:Mu1zIs6XwVuF/gI1OepvI0qD18qycQx+mFykh5fBlto=
 github.com/pkg/term v1.2.0-beta.2 h1:L3y/h2jkuBVFdWiJvNfYfKmzcCnILw7mJWm2JQuMppw=
 github.com/pkg/term v1.2.0-beta.2/go.mod h1:E25nymQcrSllhX42Ok8MRm1+hyBdHY0dCeiKZ9jpNGw=
 github.com/xyproto/binary v1.3.3 h1:pc33rqTXguiedvsH5nhx4P1Ph7iHb7awqhDscTOTHv4=
@@ -8,6 +10,10 @@ github.com/xyproto/env/v2 v2.5.3 h1:H/Fd1OAld+sPQrPKpAEkfwF3xn7eZiFys2QeH7c7oFE=
 github.com/xyproto/env/v2 v2.5.3/go.mod h1:F81ZEzu15s3TWUZJ1uzBl9iNeq9zcfHvxMkQJaLZUl0=
 github.com/xyproto/files v1.10.0 h1:236e4cDStMUUd8vb7w0nxr7Svr5wAd3CSMxoW+HedO4=
 github.com/xyproto/files v1.10.0/go.mod h1:qdjxPTPCNWG4Gk83G6QgDE0Vbzx9zcxc6eTMSaG+INU=
+github.com/xyproto/lookslikegoasm v1.0.0 h1:/2nuhAu67tdjqXHkdOjP/UUAH9uJbAdptIkF2WzXqz4=
+github.com/xyproto/lookslikegoasm v1.0.0/go.mod h1:4ck0t+iH2rEAmjwnRhMZl72lCeCxK4iylxdcZ3K3FbY=
+github.com/xyproto/mode v0.12.2 h1:pSf6B5i921vYGOifitguPI5NtfYrhnerB7UhpBZhnl4=
+github.com/xyproto/mode v0.12.2/go.mod h1:Bl7ymMitqlFLl3lgyAY3knkZb0t9/4fzgja7mWp66n0=
 github.com/xyproto/vt v1.2.11 h1:Vu84vj2n6Yqc9gO4KH5Auv7B9fKIWxC6gSZzz2fmMFY=
 github.com/xyproto/vt v1.2.11/go.mod h1:3+V6bU/IA9R9jMY0NU/t3p2fqU3lBt8J387eAlPotLo=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
