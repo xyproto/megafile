@@ -5,7 +5,7 @@ go 1.24.4
 require (
 	github.com/xyproto/env/v2 v2.5.3
 	github.com/xyproto/files v1.10.0
-	github.com/xyproto/vt v1.2.10
+	github.com/xyproto/vt v1.2.11
 )
 
 require (
