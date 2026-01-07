@@ -15,9 +15,7 @@ import (
 )
 
 const (
-	versionString = "MegaFile 1.3.9"
-	//header = "·-––—==[ MegaFile ]==—––-·"
-	header = ""
+	versionString = "MegaFile 1.3.10"
 )
 
 func main() {
@@ -62,7 +60,7 @@ func main() {
 		// Use command-line argument as the first directory, if it is a directory
 		startdirs = []string{os.Args[1], env.HomeDir(), "/tmp"}
 	}
-	curdir, err := megafile.New(c, tty, startdirs, header, env.StrAlt("EDITOR", "vi")).Run()
+	curdir, err := megafile.New(c, tty, startdirs, "", env.StrAlt("EDITOR", "vi")).Run()
 	if err != nil && err != megafile.ErrExit {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
