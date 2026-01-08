@@ -3,7 +3,10 @@
 package megafile
 
 import (
+	"fmt"
 	"os"
+	"strconv"
+	"strings"
 )
 
 // uptime returns the current uptime in seconds
