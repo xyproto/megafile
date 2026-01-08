@@ -14,7 +14,7 @@ github.com/xyproto/burnfont
 # github.com/xyproto/env/v2 v2.5.3
 ## explicit; go 1.19
 github.com/xyproto/env/v2
-# github.com/xyproto/files v1.10.0
+# github.com/xyproto/files v1.10.1
 ## explicit; go 1.19
 github.com/xyproto/files
 # github.com/xyproto/lookslikegoasm v1.0.0
