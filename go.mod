@@ -15,6 +15,6 @@ require (
 	github.com/xyproto/binary v1.3.3 // indirect
 	github.com/xyproto/burnfont v1.2.3 // indirect
 	github.com/xyproto/lookslikegoasm v1.0.0 // indirect
-	golang.org/x/sys v0.39.0 // indirect
-	golang.org/x/term v0.38.0 // indirect
+	golang.org/x/sys v0.40.0 // indirect
+	golang.org/x/term v0.39.0 // indirect
 )
