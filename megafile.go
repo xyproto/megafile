@@ -937,6 +937,10 @@ func (s *State) Run() ([]string, error) {
 			if s.autoSelected && len(s.written) == 0 {
 				okToAutoSelect = true
 			}
+			if s.autoSelected && len(s.written) > 0 && s.filterPattern != "" {
+				// Treat active filtering as a selection intent.
+				okToAutoSelect = true
+			}
 			// If a file is selected (via arrow keys), execute it regardless of text
 			// unless it was auto-selected, then there must be no text
 			if s.selectedIndex() >= 0 && s.selectedIndex() < len(s.fileEntries) && okToAutoSelect {
