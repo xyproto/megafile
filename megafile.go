@@ -51,10 +51,12 @@ type State struct {
 	filterPattern             string
 	editor                    string // typically $EDITOR
 	Header                    string // title/header
+	undoHistoryPath           string
 	written                   []rune
 	prevdir                   []string
 	fileEntries               []FileEntry
 	Directories               []string
+	trashUndo                 []trashEntry
 	dirIndex                  uint
 	startx                    uint
 	starty                    uint
@@ -77,8 +79,6 @@ type State struct {
 	selectionMoved            bool
 	ShowHidden                bool
 	autoSelected              bool
-	trashUndo                 []trashEntry
-	undoHistoryPath           string
 }
 
 // ErrExit is the error that is returned if the user appeared to want to exit
