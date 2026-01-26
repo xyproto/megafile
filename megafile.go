@@ -821,9 +821,9 @@ func (s *State) Run() ([]string, error) {
 
 		// if files are hidden or not
 		if s.ShowHidden {
-			c.Write(5, y, vt.Default, s.Background, ".")
-		} else {
 			c.Write(5, y, vt.Default, s.Background, " ")
+		} else {
+			c.Write(5, y, vt.Default, s.Background, ".")
 		}
 		y++
 
