@@ -64,6 +64,12 @@ This project can be used as the `github.com/xyproto/megafile` package, or as a s
 **Exit**
 * `ctrl-q` - exit program immediately
 
+### Runtime dependencies
+
+* `tig`
+* `lazygit`
+* `/bin/sh` for displaying the uptime on macOS
+
 ### General info
 
 * Version: 1.3.13
