@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 	"time"
 
@@ -69,7 +70,8 @@ func main() {
 		// Use command-line argument as the first directory, if it is a directory
 		startdirs = []string{os.Args[1], env.HomeDir(), "/tmp"}
 	}
-	state := megafile.New(c, tty, startdirs, "", env.StrAlt("EDITOR", "vi"))
+	undoHistoryPath := filepath.Join(env.HomeDir(), ".cache", "megafile", "undo.txt")
+	state := megafile.New(c, tty, startdirs, "", env.StrAlt("EDITOR", "vi"), undoHistoryPath)
 
 	// Handle resize signals
 	go func() {

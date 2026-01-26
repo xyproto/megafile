@@ -45,6 +45,8 @@ This project can be used as the `github.com/xyproto/megafile` package, or as a s
 
 **File Operations**
 * `Tab` - cycle through files, or tab completion
+* `Delete` - move selected file to trash (when no text is typed)
+* `ctrl-z` or `ctrl-u` - undo last trash move
 * `ctrl-f` - search for text in files
 
 **Directory Navigation**
