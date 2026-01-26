@@ -2,14 +2,9 @@
 package megafile
 
 import (
-	"bufio"
 	"bytes"
-	"crypto/sha256"
-	"encoding/hex"
 	"errors"
 	"fmt"
-	"io"
-	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -46,12 +41,6 @@ type FileEntry struct {
 	y           uint
 	color       vt.AttributeColor
 	selected    bool
-}
-
-type trashEntry struct {
-	original string
-	trash    string
-	hash     string
 }
 
 // State holds the current state of the shell, then canvas and the directory structures
@@ -196,204 +185,6 @@ func (s *State) selectedPath() (string, error) {
 	dir := s.Directories[s.dirIndex]
 	path := filepath.Join(dir, filename)
 	return path, nil
-}
-
-func uniqueTrashPath(trashDir, base string) (string, error) {
-	target := filepath.Join(trashDir, base)
-	if _, err := os.Stat(target); os.IsNotExist(err) {
-		return target, nil
-	}
-	ext := filepath.Ext(base)
-	name := strings.TrimSuffix(base, ext)
-	for i := 2; i < 1000; i++ {
-		candidate := filepath.Join(trashDir, fmt.Sprintf("%s%d%s", name, i, ext))
-		if _, err := os.Stat(candidate); os.IsNotExist(err) {
-			return candidate, nil
-		}
-	}
-	return "", errors.New("could not find a free name in trash")
-}
-
-func hashFile(path string) (string, error) {
-	file, err := os.Open(path)
-	if err != nil {
-		return "", err
-	}
-	defer file.Close()
-	hasher := sha256.New()
-	if _, err := io.Copy(hasher, file); err != nil {
-		return "", err
-	}
-	return hex.EncodeToString(hasher.Sum(nil)), nil
-}
-
-func encodeUndoField(value string) string {
-	if value == "" {
-		return ""
-	}
-	return url.PathEscape(value)
-}
-
-func decodeUndoField(value string) (string, error) {
-	if value == "" {
-		return "", nil
-	}
-	return url.PathUnescape(value)
-}
-
-func (s *State) loadUndoHistory() {
-	if s.undoHistoryPath == "" {
-		return
-	}
-	file, err := os.Open(s.undoHistoryPath)
-	if err != nil {
-		return
-	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
-		if line == "" {
-			continue
-		}
-		parts := strings.Split(line, "\t")
-		if len(parts) != 3 {
-			continue
-		}
-		original, err := decodeUndoField(parts[0])
-		if err != nil {
-			continue
-		}
-		hash, err := decodeUndoField(parts[1])
-		if err != nil {
-			continue
-		}
-		trash, err := decodeUndoField(parts[2])
-		if err != nil {
-			continue
-		}
-		if original == "" || trash == "" {
-			continue
-		}
-		s.trashUndo = append(s.trashUndo, trashEntry{
-			original: original,
-			trash:    trash,
-			hash:     hash,
-		})
-	}
-}
-
-func (s *State) appendUndoHistory(entry trashEntry) error {
-	if s.undoHistoryPath == "" {
-		return nil
-	}
-	if err := os.MkdirAll(filepath.Dir(s.undoHistoryPath), 0o755); err != nil {
-		return err
-	}
-	file, err := os.OpenFile(s.undoHistoryPath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0o644)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-	_, err = fmt.Fprintf(file, "%s\t%s\t%s\n",
-		encodeUndoField(entry.original),
-		encodeUndoField(entry.hash),
-		encodeUndoField(entry.trash),
-	)
-	return err
-}
-
-func (s *State) writeUndoHistory() error {
-	if s.undoHistoryPath == "" {
-		return nil
-	}
-	if err := os.MkdirAll(filepath.Dir(s.undoHistoryPath), 0o755); err != nil {
-		return err
-	}
-	file, err := os.Create(s.undoHistoryPath)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-	writer := bufio.NewWriter(file)
-	for _, entry := range s.trashUndo {
-		if _, err := fmt.Fprintf(writer, "%s\t%s\t%s\n",
-			encodeUndoField(entry.original),
-			encodeUndoField(entry.hash),
-			encodeUndoField(entry.trash),
-		); err != nil {
-			return err
-		}
-	}
-	return writer.Flush()
-}
-
-func (s *State) moveToTrash(path string) (string, string, error) {
-	var fileHash string
-	if files.File(path) {
-		if hash, err := hashFile(path); err == nil {
-			fileHash = hash
-		}
-	}
-	trashDir := env.TrashPath()
-	if trashDir == "" {
-		return "", "", errors.New("trash path unavailable")
-	}
-	if err := os.MkdirAll(trashDir, 0o755); err != nil {
-		return "", "", err
-	}
-	target, err := uniqueTrashPath(trashDir, filepath.Base(path))
-	if err != nil {
-		return "", "", err
-	}
-	if err := os.Rename(path, target); err != nil {
-		return "", "", err
-	}
-	return target, fileHash, nil
-}
-
-func (s *State) restoreTrashEntry(entry trashEntry) error {
-	if _, err := os.Stat(entry.trash); err != nil {
-		if os.IsNotExist(err) {
-			return errors.New("trashed item no longer exists")
-		}
-		return err
-	}
-	if _, err := os.Stat(entry.original); err == nil {
-		return fmt.Errorf("original path already exists: %s", entry.original)
-	} else if !os.IsNotExist(err) {
-		return err
-	}
-	if _, err := os.Stat(filepath.Dir(entry.original)); err != nil {
-		if os.IsNotExist(err) {
-			return errors.New("original directory no longer exists")
-		}
-		return err
-	}
-	if entry.hash != "" {
-		hash, err := hashFile(entry.trash)
-		if err != nil {
-			return err
-		}
-		if hash != entry.hash {
-			return errors.New("trashed item has changed since deletion")
-		}
-	}
-	return os.Rename(entry.trash, entry.original)
-}
-
-func (s *State) undoTrash() (trashEntry, error) {
-	if len(s.trashUndo) == 0 {
-		return trashEntry{}, errors.New("nothing to undo")
-	}
-	entry := s.trashUndo[len(s.trashUndo)-1]
-	if err := s.restoreTrashEntry(entry); err != nil {
-		return trashEntry{}, err
-	}
-	s.trashUndo = s.trashUndo[:len(s.trashUndo)-1]
-	_ = s.writeUndoHistory()
-	return entry, nil
 }
 
 func (s *State) selectNextIndexThatIsANonBinaryFile() error {
@@ -1248,27 +1039,72 @@ func (s *State) Run() ([]string, error) {
 			drawWritten()
 		case deleteKey, "c:4": // delete or ctrl-d
 			allowExit := key == "c:4"
-			if len(s.written) == 0 && s.selectedIndex() >= 0 && s.selectedIndex() < len(s.fileEntries) {
-				if path, err := s.selectedPath(); err == nil {
-					if trashPath, fileHash, err := s.moveToTrash(path); err != nil {
+			if len(s.written) == 0 {
+				if s.selectedIndex() >= 0 && s.selectedIndex() < len(s.fileEntries) {
+					if path, err := s.selectedPath(); err == nil {
+						if trashPath, fileHash, err := s.moveToTrash(path); err != nil {
+							clearAndPrepare()
+							s.ls(s.Directories[s.dirIndex])
+							s.drawError(err.Error())
+							s.highlightSelection()
+						} else {
+							entry := trashEntry{
+								original: path,
+								trash:    trashPath,
+								hash:     fileHash,
+							}
+							s.trashUndo = append(s.trashUndo, entry)
+							_ = s.appendUndoHistory(entry)
+							listDirectory()
+						}
+					}
+					break
+				}
+				if len(s.fileEntries) == 0 {
+					currentDir := s.Directories[s.dirIndex]
+					entries, err := os.ReadDir(currentDir)
+					if err != nil {
 						clearAndPrepare()
 						s.ls(s.Directories[s.dirIndex])
 						s.drawError(err.Error())
 						s.highlightSelection()
-					} else {
-						entry := trashEntry{
-							original: path,
-							trash:    trashPath,
-							hash:     fileHash,
+						break
+					}
+					if len(entries) == 0 {
+						parentDir := filepath.Dir(currentDir)
+						if absParent, err := filepath.Abs(parentDir); err == nil {
+							parentDir = absParent
 						}
-						s.trashUndo = append(s.trashUndo, entry)
-						_ = s.appendUndoHistory(entry)
+						if absCurrent, err := filepath.Abs(currentDir); err == nil {
+							currentDir = absCurrent
+						}
+						if parentDir == currentDir {
+							clearAndPrepare()
+							s.ls(s.Directories[s.dirIndex])
+							s.drawError("cannot delete root directory")
+							s.highlightSelection()
+							break
+						}
+						s.setPath(parentDir)
 						listDirectory()
+						if trashPath, fileHash, err := s.moveToTrash(currentDir); err != nil {
+							clearAndPrepare()
+							s.ls(s.Directories[s.dirIndex])
+							s.drawError(err.Error())
+							s.highlightSelection()
+						} else {
+							entry := trashEntry{
+								original: currentDir,
+								trash:    trashPath,
+								hash:     fileHash,
+							}
+							s.trashUndo = append(s.trashUndo, entry)
+							_ = s.appendUndoHistory(entry)
+							listDirectory()
+						}
+						break
 					}
 				}
-				break
-			}
-			if len(s.written) == 0 {
 				if allowExit {
 					Cleanup(c)
 					return s.Directories, ErrExit
@@ -1292,8 +1128,11 @@ func (s *State) Run() ([]string, error) {
 			clearWritten()
 			drawWritten()
 		case "c:21", "c:26": // ctrl-u or ctrl-z: undo trash
-			entry, err := s.undoTrash()
+			entry, err := s.undoTrash(s.Directories[s.dirIndex])
 			if err != nil {
+				if errors.Is(err, errNoUndoForDir) {
+					break
+				}
 				clearAndPrepare()
 				s.ls(s.Directories[s.dirIndex])
 				s.drawError(err.Error())
