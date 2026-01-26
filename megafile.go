@@ -135,21 +135,9 @@ func ulen[T string | []rune | []string](xs T) uint {
 
 // RealPath checks if the current path is the same if symlinks are not followed (pwd -P) (the "real" path)
 func (s *State) RealPath() bool {
-	// go to the "real" directory (not the symlink-based path)
 	currentPath := s.Directories[s.dirIndex]
-	currentAbsPath, err := filepath.Abs(currentPath)
-	if err != nil {
-		return false
-	}
-	realPath, err := filepath.EvalSymlinks(currentAbsPath)
-	if err != nil {
-		return false
-	}
-	realAbsPath, err := filepath.Abs(realPath)
-	if err != nil {
-		return false
-	}
-	return currentAbsPath == realAbsPath
+	// is this the "real" directory (not the symlink-based path)?
+	return files.RealPath(currentPath)
 }
 
 func (s *State) drawOutput(text string, tty *vt.TTY) {
