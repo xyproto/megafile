@@ -133,6 +133,25 @@ func ulen[T string | []rune | []string](xs T) uint {
 	return uint(len(xs))
 }
 
+// RealPath checks if the current path is the same if symlinks are not followed (pwd -P) (the "real" path)
+func (s *State) RealPath() bool {
+	// go to the "real" directory (not the symlink-based path)
+	currentPath := s.Directories[s.dirIndex]
+	currentAbsPath, err := filepath.Abs(currentPath)
+	if err != nil {
+		return false
+	}
+	realPath, err := filepath.EvalSymlinks(currentAbsPath)
+	if err != nil {
+		return false
+	}
+	realAbsPath, err := filepath.Abs(realPath)
+	if err != nil {
+		return false
+	}
+	return currentAbsPath == realAbsPath
+}
+
 func (s *State) drawOutput(text string, tty *vt.TTY) {
 	lines := strings.Split(text, "\n")
 	x := s.startx
@@ -811,8 +830,13 @@ func (s *State) Run() ([]string, error) {
 			y++
 		}
 
-		// the directory number and name
-		c.WriteTagged(5, y, s.Background, o.LightTags(fmt.Sprintf("<yellow>%d</yellow> <gray>[</gray><green>%s</green><gray>]</gray>", s.dirIndex, s.Directories[s.dirIndex])))
+		var symlinkPathMarker string
+		if !s.RealPath() {
+			symlinkPathMarker = ">"
+		}
+
+		// the directory number, name and if it's "real" or not (">" for a path with symlinks)
+		c.WriteTagged(5, y, s.Background, o.LightTags(fmt.Sprintf("<yellow>%d</yellow> <gray>[</gray><green>%s</green><gray>]</gray> <magenta>%s</magenta>", s.dirIndex, s.Directories[s.dirIndex], symlinkPathMarker)))
 		y++
 
 		// if files are hidden or not
@@ -891,6 +915,7 @@ func (s *State) Run() ([]string, error) {
 				}
 				break
 			}
+
 			clearWritten()
 			if len(s.written) > 0 && index > 0 {
 				s.written = append(s.written[:index-1], s.written[index:]...)
@@ -912,6 +937,16 @@ func (s *State) Run() ([]string, error) {
 			drawWritten()
 		case "c:17": // ctrl-q
 			s.quit = true
+		case "c:18": // ctrl-r
+			// go to the "real" directory (not the symlink-based path)
+			currentPath := s.Directories[s.dirIndex]
+			if realPath, err := filepath.EvalSymlinks(currentPath); err == nil { // success
+				if absPath, err := filepath.Abs(realPath); err == nil { // success
+					s.setPath(absPath)
+					listDirectory()
+				}
+			}
+			break
 		case "c:13": // return
 			okToAutoSelect := !s.autoSelected
 			if s.autoSelected && len(s.written) == 0 {
