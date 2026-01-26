@@ -37,13 +37,22 @@ func main() {
 	c := vt.NewCanvas()
 	defer megafile.Cleanup(c)
 
-	// Handle ctrl-c
+	// Handle ctrl-c and window resize
 	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, os.Interrupt, syscall.SIGTERM)
+
+	// Set up resize signal handling
+	resizeCh := make(chan os.Signal, 1)
+	megafile.SetupResizeSignal(resizeCh)
+
 	go func() {
-		<-ch
-		megafile.Cleanup(c)
-		os.Exit(1)
+		for sig := range ch {
+			switch sig {
+			case os.Interrupt, syscall.SIGTERM:
+				megafile.Cleanup(c)
+				os.Exit(1)
+			}
+		}
 	}()
 
 	tty, err := vt.NewTTY()
@@ -60,11 +69,23 @@ func main() {
 		// Use command-line argument as the first directory, if it is a directory
 		startdirs = []string{os.Args[1], env.HomeDir(), "/tmp"}
 	}
-	curdir, err := megafile.New(c, tty, startdirs, "", env.StrAlt("EDITOR", "vi")).Run()
+	state := megafile.New(c, tty, startdirs, "", env.StrAlt("EDITOR", "vi"))
+
+	// Handle resize signals
+	go func() {
+		for range resizeCh {
+			state.FullResetRedraw()
+		}
+	}()
+
+	curdir, err := state.Run()
 	if err != nil && err != megafile.ErrExit {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
+
+	// Clean up signal handlers
+	megafile.ResetResizeSignal()
 
 	// Write the current directory path to stderr at exit, so that shell scripts can use it
 	fmt.Fprintln(os.Stderr, curdir)

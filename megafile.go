@@ -737,14 +737,6 @@ func (s *State) execute(cmd, path string, tty *vt.TTY) (bool, bool, Action, erro
 	return false, false, NoAction, fmt.Errorf("WHAT DO YOU MEAN, %s?", cmd)
 }
 
-func (s *State) currentAbsDir() string {
-	path := s.Directories[s.dirIndex]
-	if absPath, err := filepath.Abs(path); err == nil { // success
-		return absPath
-	}
-	return path
-}
-
 // Cleanup tries to set everything right in the terminal emulator before returning
 func Cleanup(c *vt.Canvas) {
 	vt.SetXY(0, c.H()-1)
@@ -934,7 +926,6 @@ func (s *State) Run() ([]string, error) {
 					listDirectory()
 				}
 			}
-			break
 		case "c:13": // return
 			okToAutoSelect := !s.autoSelected
 			if s.autoSelected && len(s.written) == 0 {
