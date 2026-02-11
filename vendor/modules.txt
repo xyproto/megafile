@@ -11,10 +11,10 @@ github.com/xyproto/binary
 # github.com/xyproto/burnfont v1.2.3
 ## explicit; go 1.9
 github.com/xyproto/burnfont
-# github.com/xyproto/env/v2 v2.5.4
+# github.com/xyproto/env/v2 v2.5.5
 ## explicit; go 1.19
 github.com/xyproto/env/v2
-# github.com/xyproto/files v1.10.5
+# github.com/xyproto/files v1.10.6
 ## explicit; go 1.19
 github.com/xyproto/files
 # github.com/xyproto/lookslikegoasm v1.0.0
