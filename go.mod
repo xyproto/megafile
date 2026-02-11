@@ -7,13 +7,10 @@ require (
 	github.com/xyproto/env/v2 v2.5.4
 	github.com/xyproto/files v1.10.5
 	github.com/xyproto/mode v0.12.3
-	github.com/xyproto/vt v1.4.0
+	github.com/xyproto/vt v1.5.0
 )
 
 require (
-	github.com/mattn/go-colorable v0.1.14 // indirect
-	github.com/mattn/go-isatty v0.0.20 // indirect
-	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d // indirect
 	github.com/pkg/term v1.2.0-beta.2 // indirect
 	github.com/xyproto/binary v1.4.0 // indirect
 	github.com/xyproto/burnfont v1.2.3 // indirect
