@@ -8,7 +8,7 @@ import (
 
 func TestUpsie(t *testing.T) {
 	const fullKernelVersion = false
-	s, err := upsieString(fullKernelVersion)
+	s, err := UpsieString(fullKernelVersion)
 	o := vt.New()
 	if err != nil {
 		o.Err(err.Error())
