@@ -14,7 +14,7 @@ github.com/mgutz/ansi
 ## explicit; go 1.14
 github.com/pkg/term
 github.com/pkg/term/termios
-# github.com/xyproto/binary v1.3.3
+# github.com/xyproto/binary v1.4.0
 ## explicit; go 1.18
 github.com/xyproto/binary
 # github.com/xyproto/burnfont v1.2.3
@@ -23,7 +23,7 @@ github.com/xyproto/burnfont
 # github.com/xyproto/env/v2 v2.5.4
 ## explicit; go 1.19
 github.com/xyproto/env/v2
-# github.com/xyproto/files v1.10.4
+# github.com/xyproto/files v1.10.5
 ## explicit; go 1.19
 github.com/xyproto/files
 # github.com/xyproto/lookslikegoasm v1.0.0
