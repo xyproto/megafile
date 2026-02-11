@@ -351,14 +351,15 @@ func (s *State) clearHighlight() {
 
 func (s *State) ls(dir string) (int, error) {
 	const (
-		margin       = 1
+		margin       = 2
 		columnWidth  = 25
 		bottomMargin = 2
+		rightMargin  = 2
 	)
 	var (
 		x            = s.startx
 		y            = s.starty + 1
-		w            = s.canvas.W()
+		w            = s.canvas.W() - rightMargin
 		longestSoFar = uint(0)
 		maxY         = s.canvas.H()
 	)
