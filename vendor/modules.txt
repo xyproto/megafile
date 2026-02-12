@@ -23,7 +23,7 @@ github.com/xyproto/lookslikegoasm
 # github.com/xyproto/mode v0.12.3
 ## explicit; go 1.23.2
 github.com/xyproto/mode
-# github.com/xyproto/vt v1.5.1
+# github.com/xyproto/vt v1.5.2
 ## explicit; go 1.24.4
 github.com/xyproto/vt
 # golang.org/x/sys v0.41.0
