@@ -7,7 +7,7 @@ require (
 	github.com/xyproto/env/v2 v2.5.5
 	github.com/xyproto/files v1.10.6
 	github.com/xyproto/mode v0.12.3
-	github.com/xyproto/vt v1.5.4
+	github.com/xyproto/vt v1.5.6
 	golang.org/x/sys v0.41.0
 )
 
