@@ -1108,7 +1108,7 @@ func (s *State) Run() ([]string, error) {
 		key := s.readKey()
 		if renameMode {
 			switch key {
-			case "c:27", "c:3": // esc or ctrl-c: cancel rename
+			case "c:27", "c:3", "c:17": // esc, ctrl-c or ctrl-q: cancel rename
 				renameMode = false
 				redrawAndSelect(renameOriginal, renameSelectedIndex)
 				renameOriginal = ""
