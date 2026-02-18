@@ -1962,7 +1962,7 @@ func (s *State) Run() ([]string, error) {
 		case "":
 			continue
 		default:
-			if key != " " && strings.TrimSpace(key) == "" {
+			if key != " " && strings.TrimSpace(key) == "" && key != "c:160" {
 				continue
 			}
 			// Reset selection when typing
