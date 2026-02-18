@@ -23,8 +23,8 @@ func trimNullBytesInt8(s []int8) string {
 
 // trimNullBytesUint8 converts a null-terminated []uint8 slice to a Go string.
 func trimNullBytesUint8(s []uint8) string {
-	if i := bytes.IndexByte(s, 0); i != -1 {
-		return string(s[:i])
+	if before, _, ok := bytes.Cut(s, []byte{0}); ok {
+		return string(before)
 	}
 	return string(s)
 }

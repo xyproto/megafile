@@ -288,11 +288,7 @@ func (s *State) selectPrevIndexThatIsANonBinaryFile() error {
 // Decrease the given index
 func (s *State) decSelectedIndex() {
 	if val, ok := s.selectedIndexPerDirectory[s.Directories[s.dirIndex]]; ok && val != -1 {
-		if val-1 >= 0 {
-			s.selectedIndexPerDirectory[s.Directories[s.dirIndex]] = val - 1
-		} else {
-			s.selectedIndexPerDirectory[s.Directories[s.dirIndex]] = 0
-		}
+		s.selectedIndexPerDirectory[s.Directories[s.dirIndex]] = max(val-1, 0)
 	} else {
 		s.selectedIndexPerDirectory[s.Directories[s.dirIndex]] = 0
 	}
@@ -343,7 +339,7 @@ func (s *State) clearHighlight() {
 		if entry.selected {
 			// Clear only the area that was actually highlighted (displayName + suffix)
 			clearWidth := ulen(entry.displayName) + 2 // +2 for suffix and safety margin
-			for i := uint(0); i < clearWidth; i++ {
+			for i := range clearWidth {
 				s.canvas.WriteRune(entry.x+i, entry.y, vt.Default, s.Background, ' ')
 			}
 
