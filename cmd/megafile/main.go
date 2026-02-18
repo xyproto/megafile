@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	versionString = "MegaFile 1.5.13"
+	versionString = "MegaFile 1.5.14"
 )
 
 func main() {
