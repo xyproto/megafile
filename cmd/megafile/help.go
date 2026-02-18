@@ -32,12 +32,14 @@ Text Editing:
 File Operations:
   tab               cycle through files, or tab completion
   ctrl-f            search for text in files
+  ctrl-r            rename file
 
 Directory Navigation:
   ctrl-space        enter the most recent subdirectory
   ctrl-n            cycle to next directory
   ctrl-p            cycle to previous directory
   ctrl-b            go to parent directory
+  ctrl-w            go to the real directory (resolve symlinks)
 
 Display:
   ctrl-h            toggle hidden files
