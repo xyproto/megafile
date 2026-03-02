@@ -92,6 +92,21 @@ jobs:
             go test -v ./...
             go vet ./...
 
+  openbsd:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Build and test on OpenBSD
+        uses: vmactions/openbsd-vm@v1
+        with:
+          usesh: true
+          prepare: pkg_add go
+          run: |
+            go build -v ./...
+            go test -v ./...
+            go vet ./...
+
   netbsd:
     runs-on: ubuntu-24.04
     steps:
@@ -103,6 +118,7 @@ jobs:
           usesh: true
           prepare: pkg_add go
           run: |
+            export PATH="/usr/pkg/go/bin:/usr/pkg/bin:$PATH"
             go build -v ./...
             go test -v ./...
             go vet ./...
