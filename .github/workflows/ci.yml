@@ -120,9 +120,11 @@ jobs:
           run: |
             set -eu
             GOGZ="go1.24.4.netbsd-amd64.tar.gz"
-            wget https://go.dev/dl/${GOGZ}
-            gtar xzf ${GOGZ}
-            export PATH=$(pwd)/go/bin:$PATH
+            wget -q https://go.dev/dl/${GOGZ}
+            mkdir -p /tmp/goinstall
+            gtar xzf ${GOGZ} -C /tmp/goinstall
+            rm ${GOGZ}
+            export PATH=/tmp/goinstall/go/bin:$PATH
             go build -v ./...
             go test -v ./...
             go vet ./...
