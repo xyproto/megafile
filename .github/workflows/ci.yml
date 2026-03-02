@@ -118,6 +118,7 @@ jobs:
           usesh: true
           prepare: |
             pkg_add go
+            mkdir -p /usr/local/bin
             ln -sf /usr/pkg/go/bin/go /usr/local/bin/go
           run: |
             go build -v ./...
