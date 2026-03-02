@@ -1275,7 +1275,7 @@ func (s *State) Run() ([]string, error) {
 		case "c:19", "c:22", "c:24", "c:25": // ctrl-s, ctrl-v, ctrl-x, ctrl-y : do nothing, for now
 		case deleteKey, "c:4": // delete or ctrl-d
 			allowExit := key == "c:4"
-			if len(s.written) == 0 {
+			if len(s.written) == 0 || index >= uint(len(s.written)) {
 				if s.selectedIndex() >= 0 && s.selectedIndex() < len(s.fileEntries) {
 					if path, err := s.selectedPath(); err == nil {
 						if trashPath, fileHash, err := s.moveToTrash(path); err != nil {
