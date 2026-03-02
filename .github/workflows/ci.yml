@@ -116,9 +116,10 @@ jobs:
         uses: vmactions/netbsd-vm@v1
         with:
           usesh: true
-          prepare: pkg_add go
+          prepare: |
+            pkg_add go
+            ln -sf /usr/pkg/go/bin/go /usr/local/bin/go
           run: |
-            export PATH="/usr/pkg/go/bin:/usr/pkg/bin:$PATH"
             go build -v ./...
             go test -v ./...
             go vet ./...
