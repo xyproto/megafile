@@ -4,10 +4,10 @@ go 1.24.4
 
 require (
 	github.com/dustin/go-humanize v1.0.1
-	github.com/xyproto/env/v2 v2.5.5
-	github.com/xyproto/files v1.10.6
+	github.com/xyproto/env/v2 v2.5.6
+	github.com/xyproto/files v1.10.7
 	github.com/xyproto/mode v0.12.3
-	github.com/xyproto/vt v1.6.3
+	github.com/xyproto/vt v1.7.2
 	golang.org/x/sys v0.41.0
 )
 
