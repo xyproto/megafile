@@ -1,5 +1,7 @@
 # MegaFile
 
+[![CI](https://github.com/xyproto/megafile/actions/workflows/ci.yml/badge.svg)](https://github.com/xyproto/megafile/actions/workflows/ci.yml)
+
 A simple and colorful TUI shell for Linux, written in Go.
 
 This project can be used as the `github.com/xyproto/megafile` package, or as a standalone exectuable.
