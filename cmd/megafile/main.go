@@ -15,7 +15,7 @@ import (
 	"github.com/xyproto/vt"
 )
 
-const versionString = "MegaFile 1.6.8"
+const versionString = "MegaFile 1.6.9"
 
 func main() {
 	if len(os.Args) > 1 {
@@ -74,6 +74,8 @@ func main() {
 	// Handle resize signals
 	go func() {
 		for range resizeCh {
+			state.FullResetRedraw()
+			time.Sleep(300 * time.Millisecond)
 			state.FullResetRedraw()
 		}
 	}()
