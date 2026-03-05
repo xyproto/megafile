@@ -760,7 +760,6 @@ func (s *State) edit(filename, path string) (string, error) {
 
 	// Restore terminal before running external command
 	s.stopResizeHandler()
-	ResetResizeSignal()
 	s.browsing.Store(false)
 	s.tty.Restore()
 
@@ -792,7 +791,6 @@ func (s *State) run(executableName string, args []string, path string) error {
 
 	// Restore terminal before running external command
 	s.stopResizeHandler()
-	ResetResizeSignal()
 	s.browsing.Store(false)
 	if s.tty != nil {
 		s.tty.Restore()
