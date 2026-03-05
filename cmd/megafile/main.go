@@ -87,7 +87,7 @@ func main() {
 	}
 
 	// Clean up signal handlers
-	megafile.ResetResizeSignal()
+	signal.Stop(resizeCh)
 
 	// Write the current directory path to stderr at exit, so that shell scripts can use it
 	fmt.Fprintln(os.Stderr, curdir)
