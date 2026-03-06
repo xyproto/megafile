@@ -36,13 +36,9 @@ func main() {
 	c := vt.NewCanvas()
 	defer megafile.Cleanup(c)
 
-	// Handle ctrl-c and window resize
+	// Handle ctrl-c
 	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, os.Interrupt, syscall.SIGTERM)
-
-	// Set up resize signal handling
-	resizeCh := make(chan os.Signal, 1)
-	megafile.SetupResizeSignal(resizeCh)
 
 	go func() {
 		for sig := range ch {
@@ -71,23 +67,11 @@ func main() {
 	undoHistoryPath := filepath.Join(env.HomeDir(), ".cache", "megafile", "undo.txt")
 	state := megafile.New(c, tty, startdirs, "", env.StrAlt("EDITOR", "vi"), undoHistoryPath)
 
-	// Handle resize signals
-	go func() {
-		for range resizeCh {
-			state.FullResetRedraw()
-			time.Sleep(300 * time.Millisecond)
-			state.FullResetRedraw()
-		}
-	}()
-
 	curdir, err := state.Run()
 	if err != nil && err != megafile.ErrExit {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-
-	// Clean up signal handlers
-	signal.Stop(resizeCh)
 
 	// Write the current directory path to stderr at exit, so that shell scripts can use it
 	fmt.Fprintln(os.Stderr, curdir)
