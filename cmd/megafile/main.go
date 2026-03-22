@@ -23,6 +23,15 @@ func main() {
 		case "-v", "--version":
 			fmt.Println(versionString)
 			return
+		case "-u", "--uptime":
+			vt.Init()
+			defer vt.ShowCursor(true)
+			defer vt.SetLineWrap(true)
+			const fullKernelVersion = false
+			if uptimeString, err := megafile.UpsieString(fullKernelVersion); err == nil { // success
+				vt.Println(uptimeString)
+			}
+			return
 		case "-h", "--help":
 			fmt.Print(usageString)
 			return
