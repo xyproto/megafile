@@ -1427,7 +1427,6 @@ func (s *State) Run() ([]string, error) {
 			index = 0
 			clearAndPrepare()
 			clearWritten()
-			s.clearHighlight()
 			c.Draw()
 			if changedDirectory, editedFile, _, err := s.execute(commandText, s.Directories[s.dirIndex], s.tty); err != nil {
 				s.drawError(err.Error())
