@@ -1345,6 +1345,7 @@ func (s *State) Run() ([]string, error) {
 				s.binaryConfirmPending = false
 			AGAIN:
 				s.clearHighlight()
+				selectedFile = s.fileEntries[s.selectedIndex()].realName
 				savedFilename := selectedFile // Save the filename before editing
 				if changedDirectory, editedFile, nextAction, err := s.execute(selectedFile, s.Directories[s.dirIndex], s.tty); err != nil {
 					clearAndPrepare()
