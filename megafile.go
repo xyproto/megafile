@@ -1478,7 +1478,7 @@ func (s *State) Run() ([]string, error) {
 			s.setSelectedIndex(-1)
 			clearWritten()
 			drawWritten()
-		case "c:19", "c:22", "c:24", "c:25": // ctrl-s, ctrl-v, ctrl-x, ctrl-y : do nothing, for now
+		case "c:10", "c:19", "c:22", "c:24", "c:25": // ctrl-j, ctrl-s, ctrl-v, ctrl-x, ctrl-y : do nothing, for now
 		case deleteKey, "c:4": // delete or ctrl-d
 			allowExit := key == "c:4"
 			if len(s.written) == 0 || index >= uint(len(s.written)) {
