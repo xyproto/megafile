@@ -97,16 +97,8 @@ func (s *State) clearPreviewPane() {
 	s.currentPreviewImgH = 0
 }
 
-// loadImageAsync decodes an image file, re-encodes it as PNG, base64-encodes the result,
-// and sends it to s.previewResultChan. The goroutine checks ctx.Done() between the
-// expensive steps so that fast navigation can cancel stale loads before they write anything.
-// This function must be called as a goroutine; it never writes to stdout.
-//
-// PNG files are sent directly (no re-encode needed). All other formats (JPEG, GIF, …)
-// are decoded and re-encoded as PNG because the Kitty graphics protocol only supports
-// raw pixel data and PNG (f=100); it has no native JPEG support.
 // scaleNearestNeighbor scales src to dstW×dstH using nearest-neighbor interpolation,
-// producing sharp (non-blurry) pixels suitable for pixel-art or small images.
+// producing sharp pixels instead of a blurry bilinear upscale.
 func scaleNearestNeighbor(src image.Image, dstW, dstH int) *image.RGBA {
 	dst := image.NewRGBA(image.Rect(0, 0, dstW, dstH))
 	bounds := src.Bounds()
@@ -123,6 +115,15 @@ func scaleNearestNeighbor(src image.Image, dstW, dstH int) *image.RGBA {
 	return dst
 }
 
+// loadImageAsync decodes an image file, re-encodes it as PNG, base64-encodes the result,
+// and sends it to s.previewResultChan. The goroutine checks ctx.Done() between the
+// expensive steps so that fast navigation can cancel stale loads before they write anything.
+// This function must be called as a goroutine; it never writes to stdout.
+//
+// PNG files are sent directly when they are large enough to not require upscaling.
+// All other formats (JPEG, GIF, etc) are decoded and re-encoded as PNG because the
+// Kitty graphics protocol only supports raw pixel data and PNG (f=100).
+// Small images are pre-scaled with nearest-neighbor so Kitty renders sharp pixels.
 func (s *State) loadImageAsync(ctx context.Context, path string, panePixW, panePixH uint) {
 	ext := strings.ToLower(filepath.Ext(path))
 
