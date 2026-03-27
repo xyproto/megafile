@@ -468,7 +468,7 @@ func (s *State) editSelectedFile(clearAndPrepare func(), listDirectory func()) {
 	for {
 		s.clearHighlight()
 		selectedFile := s.fileEntries[s.selectedIndex()].realName
-		changedDirectory, editedFile, nextAction, err := s.execute(selectedFile, dir, s.tty)
+		changedDirectory, editedFile, nextAction, err := s.execute(selectedFile, dir)
 		if err != nil {
 			clearAndPrepare()
 			s.ls(dir)
@@ -1029,7 +1029,7 @@ func parseAction(s string) Action {
 // and returns true if the directory was changed
 // and returns true if a file was edited
 // and returns an error if something went wrong
-func (s *State) execute(cmd, path string, tty *vt.TTY) (bool, bool, Action, error) {
+func (s *State) execute(cmd, path string) (bool, bool, Action, error) {
 	// Common for non-bash and bash mode
 	if cmd == "exit" || cmd == "quit" || cmd == "q" || cmd == "bye" {
 		s.quit = true
@@ -1397,8 +1397,6 @@ func (s *State) Run() ([]string, error) {
 			continue
 		}
 		switch key {
-		case "": // TTY timeout — no key pressed
-			continue
 		case "c:27": // esc
 			if s.selectedIndex() >= 0 {
 				// If a file selection is active, clear it
@@ -1512,7 +1510,7 @@ func (s *State) Run() ([]string, error) {
 			clearAndPrepare()
 			clearWritten()
 			c.Draw()
-			if changedDirectory, editedFile, _, err := s.execute(commandText, s.Directories[s.dirIndex], s.tty); err != nil {
+			if changedDirectory, editedFile, _, err := s.execute(commandText, s.Directories[s.dirIndex]); err != nil {
 				s.drawError(err.Error())
 			} else if changedDirectory || editedFile {
 				listDirectory()
