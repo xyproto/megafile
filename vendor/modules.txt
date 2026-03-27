@@ -1,6 +1,17 @@
+# github.com/dkua/go-ico v0.0.0-20161218204303-1c25f691ce06
+## explicit
+github.com/dkua/go-ico
 # github.com/dustin/go-humanize v1.0.1
 ## explicit; go 1.16
 github.com/dustin/go-humanize
+# github.com/jsummers/gobmp v0.0.0-20230614200233-a9de23ed2e25
+## explicit
+github.com/jsummers/gobmp
+# github.com/stretchr/testify v1.11.1
+## explicit; go 1.17
+# github.com/xfmoulet/qoi v0.2.0
+## explicit; go 1.17
+github.com/xfmoulet/qoi
 # github.com/xyproto/binary v1.4.0
 ## explicit; go 1.18
 github.com/xyproto/binary
