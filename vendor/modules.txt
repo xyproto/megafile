@@ -7,6 +7,9 @@ github.com/dustin/go-humanize
 # github.com/jsummers/gobmp v0.0.0-20230614200233-a9de23ed2e25
 ## explicit
 github.com/jsummers/gobmp
+# github.com/sourcegraph/annotate v0.0.0-20160123013949-f4cad6c6324d
+## explicit
+github.com/sourcegraph/annotate
 # github.com/stretchr/testify v1.11.1
 ## explicit; go 1.17
 # github.com/xfmoulet/qoi v0.2.0
@@ -27,9 +30,12 @@ github.com/xyproto/files
 # github.com/xyproto/lookslikegoasm v1.0.0
 ## explicit; go 1.23.2
 github.com/xyproto/lookslikegoasm
-# github.com/xyproto/mode v0.12.5
+# github.com/xyproto/mode v0.12.6
 ## explicit; go 1.23.2
 github.com/xyproto/mode
+# github.com/xyproto/syntax v1.12.1 => ../syntax
+## explicit; go 1.25.0
+github.com/xyproto/syntax
 # github.com/xyproto/vt v1.7.6
 ## explicit; go 1.25.0
 github.com/xyproto/vt
@@ -41,3 +47,4 @@ golang.org/x/sys/windows
 # golang.org/x/term v0.41.0
 ## explicit; go 1.25.0
 golang.org/x/term
+# github.com/xyproto/syntax => ../syntax
