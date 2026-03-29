@@ -126,6 +126,7 @@ type State struct {
 	currentPreviewEncoded     string             // cached base64 PNG data for the current image preview
 	currentPreviewImgW        uint               // pixel width of the cached preview image
 	currentPreviewImgH        uint               // pixel height of the cached preview image
+	listOffset                int                // scroll offset for the file listing
 	previewCancel             context.CancelFunc // cancels the in-flight loadImageAsync goroutine
 	previewResultChan         chan previewResult // receives results from loadImageAsync
 	keyChan                   chan string        // receives keys from the background readKey goroutine
@@ -536,8 +537,8 @@ func (s *State) ls(dir string) (int, error) {
 		longestSoFar = uint(0)
 		maxY         = s.canvas.H()
 	)
-	// In kitty mode the right half is reserved for the preview pane.
-	// A separator column sits at W/2, so the listing stops one column before it.
+	// In graphics mode the right half is reserved for the preview pane.
+	// We use a single column listing that scrolls vertically.
 	w := s.canvas.W() - rightMargin
 	if envGraphics && s.canvas.W() >= 20 {
 		w = s.canvas.W()/2 - 1
@@ -625,6 +626,31 @@ func (s *State) ls(dir string) (int, error) {
 			}
 		}
 
+		// Store ALL filtered entries so selectedIndex remains stable
+		s.fileEntries = append(s.fileEntries, FileEntry{
+			realName: name,
+		})
+	}
+
+	// Now draw only the visible entries
+	y = s.starty + 1
+	x = s.startx
+	visibleCount := 0
+	maxVisible := int(maxY - s.starty - 1)
+
+	for i := range s.fileEntries {
+		entry := &s.fileEntries[i]
+
+		if envGraphics {
+			if i < s.listOffset {
+				continue
+			}
+			if visibleCount >= maxVisible {
+				break
+			}
+		}
+
+		name := entry.realName
 		// Determine display name (truncate if needed)
 		displayName := name
 		if ulen(name) > columnWidth-2 {
@@ -675,15 +701,12 @@ func (s *State) ls(dir string) (int, error) {
 			suffix = ""
 		}
 
-		// Store file entry with position info
-		s.fileEntries = append(s.fileEntries, FileEntry{
-			x:           x,
-			y:           y,
-			realName:    name,
-			displayName: displayName,
-			color:       color,
-			suffix:      suffix,
-		})
+		// Update entry with position info
+		entry.x = x
+		entry.y = y
+		entry.displayName = displayName
+		entry.color = color
+		entry.suffix = suffix
 
 		s.canvas.Write(x, y, color, s.Background, displayName)
 		if suffix != "" {
@@ -691,12 +714,18 @@ func (s *State) ls(dir string) (int, error) {
 		}
 
 		y++
-		if y >= maxY {
-			x += longestSoFar + margin
-			y = s.starty + 1
-		}
-		if x+longestSoFar > w {
-			break
+		visibleCount++
+
+		if !envGraphics {
+			if y >= maxY {
+				x += longestSoFar + margin
+				y = s.starty + 1
+			}
+			if x+longestSoFar > w {
+				// We still need to populate s.fileEntries for the rest,
+				// but we stop drawing.
+				break
+			}
 		}
 	}
 
@@ -1325,6 +1354,7 @@ func (s *State) Run() ([]string, error) {
 		found := s.setSelectedIndexIfMissing(-1)
 		s.selectionMoved = found // Reset selection moved flag
 		s.filterPattern = ""     // Clear filter when changing directories
+		s.listOffset = 0
 		rename.reset()
 		clearAndPrepare()
 		s.ls(s.Directories[s.dirIndex])
@@ -1672,8 +1702,12 @@ func (s *State) Run() ([]string, error) {
 			} else if len(s.fileEntries) > 0 {
 				s.selectionMoved = true
 				s.clearHighlight()
-				// Jump to first file, or use the cached index
 				s.setSelectedIndex(0)
+				if envGraphics {
+					s.listOffset = 0
+					clearAndPrepare()
+					s.ls(s.Directories[s.dirIndex])
+				}
 				s.highlightSelection()
 			}
 		case "c:5", endKey: // ctrl-e, end
@@ -1684,8 +1718,13 @@ func (s *State) Run() ([]string, error) {
 			} else if len(s.fileEntries) > 0 {
 				s.selectionMoved = true
 				s.clearHighlight()
-				// Jump to last file
 				s.setSelectedIndex(len(s.fileEntries) - 1)
+				if envGraphics {
+					maxVisible := int(c.H() - s.starty - 1 - 2) // -2 for status line margin
+					s.listOffset = max(len(s.fileEntries)-maxVisible, 0)
+					clearAndPrepare()
+					s.ls(s.Directories[s.dirIndex])
+				}
 				s.highlightSelection()
 			}
 		case upArrow:
@@ -1695,14 +1734,20 @@ func (s *State) Run() ([]string, error) {
 				index = 0
 				drawWritten()
 			} else if len(s.fileEntries) > 0 {
-				// Files listed, navigate files
 				s.selectionMoved = true
 				s.clearHighlight()
 				// Move selection up
-				if s.selectedIndex() < 0 {
+				if s.selectedIndex() <= 0 {
 					s.setSelectedIndex(0)
-				} else if s.selectedIndex() > 0 {
+				} else {
 					s.decSelectedIndex()
+					if envGraphics {
+						if s.selectedIndex() < s.listOffset {
+							s.listOffset = s.selectedIndex()
+							clearAndPrepare()
+							s.ls(s.Directories[s.dirIndex])
+						}
+					}
 				}
 				s.highlightSelection()
 			}
@@ -1713,7 +1758,6 @@ func (s *State) Run() ([]string, error) {
 				index = ulen(s.written) // one after the text
 				drawWritten()
 			} else if len(s.fileEntries) > 0 {
-				// Files listed, navigate files
 				s.selectionMoved = true
 				s.clearHighlight()
 				// Move selection down
@@ -1721,6 +1765,14 @@ func (s *State) Run() ([]string, error) {
 					s.setSelectedIndex(0)
 				} else if s.selectedIndex() < len(s.fileEntries)-1 {
 					s.incSelectedIndex()
+					if envGraphics {
+						maxVisible := int(c.H() - s.starty - 1 - 2)
+						if s.selectedIndex() >= s.listOffset+maxVisible {
+							s.listOffset = s.selectedIndex() - maxVisible + 1
+							clearAndPrepare()
+							s.ls(s.Directories[s.dirIndex])
+						}
+					}
 				}
 				s.highlightSelection()
 			}
