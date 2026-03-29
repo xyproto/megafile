@@ -127,6 +127,7 @@ type State struct {
 	currentPreviewImgW        uint               // pixel width of the cached preview image
 	currentPreviewImgH        uint               // pixel height of the cached preview image
 	listOffset                int                // scroll offset for the file listing
+	splitX                    uint               // split point between the file listing and the preview pane
 	previewCancel             context.CancelFunc // cancels the in-flight loadImageAsync goroutine
 	previewResultChan         chan previewResult // receives results from loadImageAsync
 	keyChan                   chan string        // receives keys from the background readKey goroutine
@@ -599,6 +600,7 @@ func (s *State) ls(dir string) (int, error) {
 	// Clear file entries for new listing
 	s.fileEntries = []FileEntry{}
 
+	maxLen := uint(0)
 	for _, e := range entries {
 		name := e.Name()
 		if !s.ShowHidden && strings.HasPrefix(name, ".") {
@@ -626,10 +628,27 @@ func (s *State) ls(dir string) (int, error) {
 			}
 		}
 
+		if ulen(name) > maxLen {
+			maxLen = ulen(name)
+		}
+
 		// Store ALL filtered entries so selectedIndex remains stable
 		s.fileEntries = append(s.fileEntries, FileEntry{
 			realName: name,
 		})
+	}
+
+	if envGraphics && s.canvas.W() >= 20 {
+		s.splitX = s.startx + maxLen + 2
+		// Cap splitX so preview pane doesn't become too narrow
+		if s.splitX > s.canvas.W()-20 {
+			s.splitX = s.canvas.W() - 20
+		}
+		// Also don't let it be too small
+		if s.splitX < 15 {
+			s.splitX = 15
+		}
+		w = s.splitX - 1
 	}
 
 	// Now draw only the visible entries
@@ -653,6 +672,9 @@ func (s *State) ls(dir string) (int, error) {
 		name := entry.realName
 		// Determine display name (truncate if needed)
 		displayName := name
+		if envGraphics {
+			columnWidth = s.splitX - s.startx
+		}
 		if ulen(name) > columnWidth-2 {
 			displayName = string([]rune(name)[:columnWidth-5]) + "..."
 		}
@@ -740,9 +762,9 @@ func (s *State) ls(dir string) (int, error) {
 		s.autoSelected = false
 	}
 
-	// In kitty mode, draw a vertical separator between the file listing and the preview pane.
+	// In graphics mode, draw a vertical separator between the file listing and the preview pane.
 	if envGraphics && s.canvas.W() >= 20 {
-		sepX := s.canvas.W() / 2
+		sepX := s.splitX
 		sepColor := vt.Gray
 		if envNoColor {
 			sepColor = vt.Default
