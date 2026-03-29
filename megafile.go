@@ -269,6 +269,12 @@ func (s *State) RealPath() bool {
 	return files.RealPath(currentPath)
 }
 
+// showPreviewPane returns true if the preview pane should be displayed.
+// It requires a minimum terminal width.
+func (s *State) showPreviewPane() bool {
+	return s.canvas.W() >= 40
+}
+
 func (s *State) drawOutput(text string) {
 	lines := strings.Split(text, "\n")
 	x := s.startx
@@ -538,11 +544,11 @@ func (s *State) ls(dir string) (int, error) {
 		longestSoFar = uint(0)
 		maxY         = s.canvas.H()
 	)
-	// In graphics mode the right half is reserved for the preview pane.
+	// In graphics or text-preview mode the right half is reserved for the preview pane.
 	// We use a single column listing that scrolls vertically.
 	w := s.canvas.W() - rightMargin
-	if envGraphics && s.canvas.W() >= 20 {
-		w = s.canvas.W()/2 - 1
+	if s.showPreviewPane() {
+		// w will be updated later based on splitX
 	}
 	if maxY > bottomMargin {
 		maxY -= bottomMargin
@@ -638,7 +644,7 @@ func (s *State) ls(dir string) (int, error) {
 		})
 	}
 
-	if envGraphics && s.canvas.W() >= 20 {
+	if s.showPreviewPane() {
 		s.splitX = s.startx + maxLen + 2
 		// Cap splitX so preview pane doesn't become too narrow
 		if s.splitX > s.canvas.W()-20 {
@@ -656,11 +662,10 @@ func (s *State) ls(dir string) (int, error) {
 	x = s.startx
 	visibleCount := 0
 	maxVisible := int(maxY - s.starty - 1)
-
 	for i := range s.fileEntries {
 		entry := &s.fileEntries[i]
 
-		if envGraphics {
+		if s.showPreviewPane() {
 			if i < s.listOffset {
 				continue
 			}
@@ -672,9 +677,10 @@ func (s *State) ls(dir string) (int, error) {
 		name := entry.realName
 		// Determine display name (truncate if needed)
 		displayName := name
-		if envGraphics {
+		if s.showPreviewPane() {
 			columnWidth = s.splitX - s.startx
 		}
+
 		if ulen(name) > columnWidth-2 {
 			displayName = string([]rune(name)[:columnWidth-5]) + "..."
 		}
@@ -738,7 +744,7 @@ func (s *State) ls(dir string) (int, error) {
 		y++
 		visibleCount++
 
-		if !envGraphics {
+		if !s.showPreviewPane() {
 			if y >= maxY {
 				x += longestSoFar + margin
 				y = s.starty + 1
@@ -762,15 +768,19 @@ func (s *State) ls(dir string) (int, error) {
 		s.autoSelected = false
 	}
 
-	// In graphics mode, draw a vertical separator between the file listing and the preview pane.
-	if envGraphics && s.canvas.W() >= 20 {
+	// In graphics or text-preview mode, draw a vertical separator between the file listing and the preview pane.
+	if s.showPreviewPane() {
 		sepX := s.splitX
 		sepColor := vt.Gray
 		if envNoColor {
 			sepColor = vt.Default
 		}
+		sepChar := "│"
+		if !envGraphics {
+			sepChar = "|"
+		}
 		for iy := s.starty + 1; iy < maxY; iy++ {
-			s.canvas.Write(sepX, iy, sepColor, s.Background, "│")
+			s.canvas.Write(sepX, iy, sepColor, s.Background, sepChar)
 		}
 	}
 
@@ -1725,7 +1735,7 @@ func (s *State) Run() ([]string, error) {
 				s.selectionMoved = true
 				s.clearHighlight()
 				s.setSelectedIndex(0)
-				if envGraphics {
+				if s.showPreviewPane() {
 					s.listOffset = 0
 					clearAndPrepare()
 					s.ls(s.Directories[s.dirIndex])
@@ -1741,7 +1751,7 @@ func (s *State) Run() ([]string, error) {
 				s.selectionMoved = true
 				s.clearHighlight()
 				s.setSelectedIndex(len(s.fileEntries) - 1)
-				if envGraphics {
+				if s.showPreviewPane() {
 					maxVisible := int(c.H() - s.starty - 1 - 2) // -2 for status line margin
 					s.listOffset = max(len(s.fileEntries)-maxVisible, 0)
 					clearAndPrepare()
@@ -1763,7 +1773,7 @@ func (s *State) Run() ([]string, error) {
 					s.setSelectedIndex(0)
 				} else {
 					s.decSelectedIndex()
-					if envGraphics {
+					if s.showPreviewPane() {
 						if s.selectedIndex() < s.listOffset {
 							s.listOffset = s.selectedIndex()
 							clearAndPrepare()
@@ -1787,7 +1797,7 @@ func (s *State) Run() ([]string, error) {
 					s.setSelectedIndex(0)
 				} else if s.selectedIndex() < len(s.fileEntries)-1 {
 					s.incSelectedIndex()
-					if envGraphics {
+					if s.showPreviewPane() {
 						maxVisible := int(c.H() - s.starty - 1 - 2)
 						if s.selectedIndex() >= s.listOffset+maxVisible {
 							s.listOffset = s.selectedIndex() - maxVisible + 1
