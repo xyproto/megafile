@@ -65,7 +65,7 @@ func deleteInlineImages() {
 }
 
 // previewPaneBounds returns the 1-indexed terminal column/row and the cell dimensions
-// (cols, rows) of the preview pane.  A separator column sits at W/2 (canvas, 0-indexed),
+// (cols, rows) of the preview pane. A separator column sits at W/2 (canvas, 0-indexed),
 // so the preview starts one column to the right of it.
 func (s *State) previewPaneBounds() (col, row, cols, rows uint) {
 	W := s.canvas.W()
