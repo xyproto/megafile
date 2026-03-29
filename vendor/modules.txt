@@ -7,6 +7,12 @@ github.com/dustin/go-humanize
 # github.com/jsummers/gobmp v0.0.0-20230614200233-a9de23ed2e25
 ## explicit
 github.com/jsummers/gobmp
+# github.com/lucasb-eyer/go-colorful v1.4.0
+## explicit; go 1.12
+github.com/lucasb-eyer/go-colorful
+# github.com/peterhellberg/gfx v0.0.0-20250602150231-2e41f5fad310
+## explicit; go 1.17
+github.com/peterhellberg/gfx
 # github.com/sourcegraph/annotate v0.0.0-20160123013949-f4cad6c6324d
 ## explicit
 github.com/sourcegraph/annotate
@@ -21,6 +27,9 @@ github.com/xyproto/binary
 # github.com/xyproto/burnfont v1.2.3
 ## explicit; go 1.9
 github.com/xyproto/burnfont
+# github.com/xyproto/burnpal v1.0.0
+## explicit; go 1.11
+github.com/xyproto/burnpal
 # github.com/xyproto/env/v2 v2.5.6
 ## explicit; go 1.19
 github.com/xyproto/env/v2
@@ -33,12 +42,19 @@ github.com/xyproto/lookslikegoasm
 # github.com/xyproto/mode v0.12.6
 ## explicit; go 1.23.2
 github.com/xyproto/mode
+# github.com/xyproto/palgen v1.6.1
+## explicit; go 1.16
+github.com/xyproto/palgen
 # github.com/xyproto/syntax v1.12.2 => ../syntax
 ## explicit; go 1.25.0
 github.com/xyproto/syntax
-# github.com/xyproto/vt v1.7.6
+# github.com/xyproto/vt v1.7.7
 ## explicit; go 1.25.0
 github.com/xyproto/vt
+# golang.org/x/image v0.38.0
+## explicit; go 1.25.0
+golang.org/x/image/draw
+golang.org/x/image/math/f64
 # golang.org/x/sys v0.42.0
 ## explicit; go 1.25.0
 golang.org/x/sys/plan9
