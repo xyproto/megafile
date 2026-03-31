@@ -8,6 +8,7 @@ require (
 	github.com/xyproto/files v1.10.8
 	github.com/xyproto/imagepreview v1.0.6
 	github.com/xyproto/mode v0.12.6
+	github.com/xyproto/syntax v1.12.2
 	github.com/xyproto/vt v1.7.7
 	golang.org/x/sys v0.42.0
 )
@@ -15,22 +16,18 @@ require (
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dkua/go-ico v0.0.0-20161218204303-1c25f691ce06 // indirect
+	github.com/jsummers/gobmp v0.0.0-20230614200233-a9de23ed2e25 // indirect
 	github.com/lucasb-eyer/go-colorful v1.4.0 // indirect
 	github.com/peterhellberg/gfx v0.0.0-20250602150231-2e41f5fad310 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/xfmoulet/qoi v0.2.0 // indirect
-	github.com/xyproto/burnpal v1.0.0 // indirect
-	github.com/xyproto/palgen v1.6.1 // indirect
-	golang.org/x/image v0.38.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
-)
-
-require (
-	github.com/jsummers/gobmp v0.0.0-20230614200233-a9de23ed2e25 // indirect
 	github.com/sourcegraph/annotate v0.0.0-20160123013949-f4cad6c6324d // indirect
+	github.com/xfmoulet/qoi v0.2.0 // indirect
 	github.com/xyproto/binary v1.4.0 // indirect
 	github.com/xyproto/burnfont v1.2.3 // indirect
+	github.com/xyproto/burnpal v1.0.0 // indirect
 	github.com/xyproto/lookslikegoasm v1.0.0 // indirect
-	github.com/xyproto/syntax v1.12.2
+	github.com/xyproto/palgen v1.6.1 // indirect
+	golang.org/x/image v0.38.0 // indirect
 	golang.org/x/term v0.41.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
