@@ -6,10 +6,10 @@ require (
 	github.com/dustin/go-humanize v1.0.1
 	github.com/xyproto/env/v2 v2.5.6
 	github.com/xyproto/files v1.10.8
-	github.com/xyproto/imagepreview v1.0.12
+	github.com/xyproto/imagepreview v1.1.0
 	github.com/xyproto/mode v0.12.6
-	github.com/xyproto/syntax v1.12.4
-	github.com/xyproto/vt v1.7.10
+	github.com/xyproto/syntax v1.12.5
+	github.com/xyproto/vt v1.7.11
 	golang.org/x/sys v0.41.0
 )
 
