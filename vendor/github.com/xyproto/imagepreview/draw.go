@@ -5,16 +5,21 @@ import (
 	"image/color"
 	"os"
 
+	"github.com/xyproto/env/v2"
 	"github.com/xyproto/palgen"
 	"github.com/xyproto/vt"
 	"golang.org/x/image/draw"
 )
 
-// BlockRune is the UTF-8 block character used for text-based image rendering.
-const BlockRune = '▒'
+const (
+	// BlockRune is the UTF-8 block character used for text-based image rendering.
+	BlockRune = '▒'
 
-// ASCIIRune is the ASCII fallback character used for text-based image rendering.
-const ASCIIRune = '#'
+	// ASCIIRune is the ASCII fallback character used for text-based image rendering.
+	ASCIIRune = '#'
+)
+
+var envNoColor = env.Bool("NO_COLOR")
 
 // DrawOnCanvas draws the given image onto a VT100 Canvas using the basic 16-color palette.
 // The drawRune parameter specifies the character used for each pixel
@@ -33,12 +38,18 @@ func DrawOnCanvas(canvas *vt.Canvas, m image.Image, drawRune rune) error {
 				if found, ok := PaletteColorMap[[3]uint8{average, average, average}]; ok {
 					vc = found
 				}
+				if envNoColor {
+					vc = vt.Default
+				}
 				canvas.PlotColor(uint(x), uint(y), vc, drawRune)
 			} else {
 				c := color.NRGBAModel.Convert(img.At(x, y)).(color.NRGBA)
 				vc := vt.White // default
 				if found, ok := PaletteColorMap[[3]uint8{c.R, c.G, c.B}]; ok {
 					vc = found
+				}
+				if envNoColor {
+					vc = vt.Default
 				}
 				canvas.PlotColor(uint(x), uint(y), vc, drawRune)
 			}
@@ -110,12 +121,18 @@ func DrawTextImage(canvas *vt.Canvas, path string, col, row, cols, rows uint, dr
 				if found, ok := PaletteColorMap[[3]uint8{average, average, average}]; ok {
 					vc = found
 				}
+				if envNoColor {
+					vc = vt.Default
+				}
 				canvas.PlotColor(col+uint(x), row+uint(y), vc, drawRune)
 			} else {
 				c := color.NRGBAModel.Convert(indexedImg.At(x, y)).(color.NRGBA)
 				vc := vt.White // default
 				if found, ok := PaletteColorMap[[3]uint8{c.R, c.G, c.B}]; ok {
 					vc = found
+				}
+				if envNoColor {
+					vc = vt.Default
 				}
 				canvas.PlotColor(col+uint(x), row+uint(y), vc, drawRune)
 			}
