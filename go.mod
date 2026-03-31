@@ -1,6 +1,6 @@
 module github.com/xyproto/megafile
 
-go 1.24.13
+go 1.25.8
 
 require (
 	github.com/dustin/go-humanize v1.0.1
@@ -8,9 +8,9 @@ require (
 	github.com/xyproto/files v1.10.8
 	github.com/xyproto/imagepreview v1.1.0
 	github.com/xyproto/mode v0.12.6
-	github.com/xyproto/syntax v1.12.5
-	github.com/xyproto/vt v1.7.11
-	golang.org/x/sys v0.41.0
+	github.com/xyproto/syntax v1.12.6
+	github.com/xyproto/vt v1.7.13
+	golang.org/x/sys v0.42.0
 )
 
 require (
@@ -29,9 +29,9 @@ require (
 	github.com/xyproto/burnpal v1.0.0 // indirect
 	github.com/xyproto/lookslikegoasm v1.0.0 // indirect
 	github.com/xyproto/palgen v1.6.1 // indirect
-	golang.org/x/image v0.36.0 // indirect
-	golang.org/x/net v0.50.0 // indirect
-	golang.org/x/term v0.40.0 // indirect
-	golang.org/x/text v0.34.0 // indirect
+	golang.org/x/image v0.38.0 // indirect
+	golang.org/x/net v0.52.0 // indirect
+	golang.org/x/term v0.41.0 // indirect
+	golang.org/x/text v0.35.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
