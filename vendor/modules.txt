@@ -44,8 +44,8 @@ github.com/xyproto/env/v2
 # github.com/xyproto/files v1.10.8
 ## explicit; go 1.19
 github.com/xyproto/files
-# github.com/xyproto/imagepreview v1.0.9
-## explicit; go 1.26.1
+# github.com/xyproto/imagepreview v1.0.10
+## explicit; go 1.24
 github.com/xyproto/imagepreview
 # github.com/xyproto/lookslikegoasm v1.0.0
 ## explicit; go 1.23.2
