@@ -425,7 +425,7 @@ func LightTextConfigByName(name string) TextConfig {
 	}
 }
 
-// TextConfigFromEnv will return the TextConfig selected by the O_THEME (or THEME)
+// TextConfigFromEnv will return the TextConfig selected by the O_THEME (or default)
 // environment variable, falling back to the default.
 // If NO_COLOR is set, an empty TextConfig (no colors) is returned.
 // If O_LIGHT is set, light theme variants are preferred.
@@ -433,7 +433,7 @@ func TextConfigFromEnv() TextConfig {
 	if env.Bool("NO_COLOR") {
 		return NewNoColorTextConfig()
 	}
-	name := env.StrAlt("O_THEME", "THEME")
+	name := env.StrAlt("O_THEME", "default")
 	if name == "" {
 		return DefaultTextConfig
 	}
