@@ -434,7 +434,7 @@ func TextConfigFromEnv() TextConfig {
 		return NewNoColorTextConfig()
 	}
 	name := env.StrAlt("O_THEME", "default")
-	if name == "" {
+	if name == "" || name == "default" {
 		return DefaultTextConfig
 	}
 	if env.Bool("O_LIGHT") {
