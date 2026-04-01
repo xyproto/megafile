@@ -3,7 +3,7 @@
 [![License](https://img.shields.io/badge/license-BSD3-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 [![CI](https://github.com/xyproto/megafile/actions/workflows/ci.yml/badge.svg)](https://github.com/xyproto/megafile/actions/workflows/ci.yml)
 
-A simple and colorful TUI shell for Linux, written in Go.
+File browser, simple shell and image viewer for the terminal, written in Go.
 
 This project can be used as the `github.com/xyproto/megafile` package, or as a standalone exectuable.
 
