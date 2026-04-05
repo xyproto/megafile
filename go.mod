@@ -8,7 +8,7 @@ require (
 	github.com/xyproto/files v1.10.8
 	github.com/xyproto/imagepreview v1.1.1
 	github.com/xyproto/mode v0.12.6
-	github.com/xyproto/syntax v1.12.10
+	github.com/xyproto/syntax v1.12.11
 	github.com/xyproto/vt v1.7.14
 	golang.org/x/sys v0.42.0
 )
