@@ -188,15 +188,41 @@ func (s *State) drawTextPreview(path string, col, row, cols, rows uint) {
 	syntax.SetDefaultTextConfigFromEnv()
 	tout := vt.New()
 
+	commentMarker := syntax.SingleLineCommentMarker(m)
+	q, qerr := syntax.NewQuoteState(commentMarker, m, m == mode.Lisp || m == mode.Clojure)
+	inCodeBlock := false
+
 	sc := bufio.NewScanner(f)
 	for r := uint(0); r < rows && sc.Scan(); r++ {
 		line := sc.Text()
+		trimmedLine := strings.TrimSpace(line)
 		line = strings.ReplaceAll(line, "\t", "    ")
 		runes := []rune(line)
 		if uint(len(runes)) >= cols {
 			runes = runes[:cols-1]
 		}
 		truncated := string(runes)
+
+		// Update the quote state for multiline comment/string tracking.
+		if qerr == nil {
+			q.Process(trimmedLine)
+		}
+
+		// Handle Python/Nim/Mojo docstrings.
+		if m == mode.Python || m == mode.Nim || m == mode.Mojo || m == mode.Starlark {
+			inCodeBlock, _ = syntax.CheckMultiLineString(trimmedLine, inCodeBlock)
+		}
+
+		// Color entire line as a comment when inside a multiline comment or docstring.
+		if qerr == nil && (q.InMultiLineComment() || q.StoppedMultiLineComment()) && !q.ContainsMultiLineComments() {
+			fmt.Fprintf(os.Stdout, "\033[%d;%dH%s\033[0m", row+r, col, tout.DarkTags("<darkgray>"+truncated+"<off>"))
+			continue
+		}
+		if inCodeBlock {
+			fmt.Fprintf(os.Stdout, "\033[%d;%dH%s\033[0m", row+r, col, tout.DarkTags("<darkgray>"+truncated+"<off>"))
+			continue
+		}
+
 		tagged, err := syntax.AsText([]byte(truncated), m)
 		if err != nil {
 			fmt.Fprintf(os.Stdout, "\033[%d;%dH%s", row+r, col, truncated)
