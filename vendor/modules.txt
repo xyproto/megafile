@@ -59,7 +59,7 @@ github.com/xyproto/palgen
 # github.com/xyproto/syntax v1.12.11
 ## explicit; go 1.25.1
 github.com/xyproto/syntax
-# github.com/xyproto/vt v1.8.0
+# github.com/xyproto/vt v1.8.3
 ## explicit; go 1.25.1
 github.com/xyproto/vt
 # golang.org/x/image v0.39.0
@@ -107,3 +107,11 @@ golang.org/x/text/runes
 golang.org/x/text/transform
 # gopkg.in/yaml.v3 v3.0.1
 ## explicit
+# mvdan.cc/sh/v3 v3.13.1
+## explicit; go 1.25.0
+mvdan.cc/sh/v3/expand
+mvdan.cc/sh/v3/fileutil
+mvdan.cc/sh/v3/internal
+mvdan.cc/sh/v3/interp
+mvdan.cc/sh/v3/pattern
+mvdan.cc/sh/v3/syntax
