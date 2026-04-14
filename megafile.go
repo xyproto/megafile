@@ -1066,8 +1066,7 @@ func runShell(cmdStr, path string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	err = runner.Run(context.Background(), prog)
-	if err != nil {
+	if err := runner.Run(context.Background(), prog); err != nil {
 		if buf.Len() > 0 {
 			return "", fmt.Errorf("%s: %s", err, strings.TrimSpace(buf.String()))
 		}
