@@ -9,8 +9,8 @@ require (
 	github.com/xyproto/imagepreview v1.1.1
 	github.com/xyproto/mode v0.12.6
 	github.com/xyproto/syntax v1.12.11
-	github.com/xyproto/vt v1.7.14
-	golang.org/x/sys v0.42.0
+	github.com/xyproto/vt v1.8.0
+	golang.org/x/sys v0.43.0
 )
 
 require (
@@ -29,9 +29,9 @@ require (
 	github.com/xyproto/burnpal v1.0.0 // indirect
 	github.com/xyproto/lookslikegoasm v1.0.0 // indirect
 	github.com/xyproto/palgen v1.6.1 // indirect
-	golang.org/x/image v0.38.0 // indirect
-	golang.org/x/net v0.52.0 // indirect
-	golang.org/x/term v0.41.0 // indirect
-	golang.org/x/text v0.35.0 // indirect
+	golang.org/x/image v0.39.0 // indirect
+	golang.org/x/net v0.53.0 // indirect
+	golang.org/x/term v0.42.0 // indirect
+	golang.org/x/text v0.36.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
