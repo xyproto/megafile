@@ -8,7 +8,7 @@ require (
 	github.com/xyproto/files v1.10.8
 	github.com/xyproto/imagepreview v1.1.1
 	github.com/xyproto/mode v0.12.6
-	github.com/xyproto/syntax v1.12.11
+	github.com/xyproto/syntax v1.13.0
 	github.com/xyproto/vt v1.8.3
 	golang.org/x/sys v0.43.0
 	mvdan.cc/sh/v3 v3.13.1
@@ -36,3 +36,5 @@ require (
 	golang.org/x/text v0.36.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace github.com/xyproto/syntax => ../syntax
