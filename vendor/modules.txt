@@ -12,9 +12,6 @@ github.com/jsummers/gobmp
 # github.com/lucasb-eyer/go-colorful v1.4.0
 ## explicit; go 1.12
 github.com/lucasb-eyer/go-colorful
-# github.com/peterhellberg/gfx v0.0.0-20250602150231-2e41f5fad310
-## explicit; go 1.17
-github.com/peterhellberg/gfx
 # github.com/pmezard/go-difflib v1.0.0
 ## explicit
 # github.com/sourcegraph/annotate v0.0.0-20160123013949-f4cad6c6324d
@@ -35,7 +32,7 @@ github.com/xyproto/binary
 # github.com/xyproto/burnfont v1.2.3
 ## explicit; go 1.9
 github.com/xyproto/burnfont
-# github.com/xyproto/burnpal v1.0.0
+# github.com/xyproto/burnpal v1.1.0
 ## explicit; go 1.11
 github.com/xyproto/burnpal
 # github.com/xyproto/env/v2 v2.5.6
@@ -44,7 +41,10 @@ github.com/xyproto/env/v2
 # github.com/xyproto/files v1.10.8
 ## explicit; go 1.19
 github.com/xyproto/files
-# github.com/xyproto/imagepreview v1.1.3
+# github.com/xyproto/gfx v1.0.0
+## explicit; go 1.17
+github.com/xyproto/gfx
+# github.com/xyproto/imagepreview v1.2.0
 ## explicit; go 1.25.1
 github.com/xyproto/imagepreview
 # github.com/xyproto/lookslikegoasm v1.0.0
@@ -53,13 +53,13 @@ github.com/xyproto/lookslikegoasm
 # github.com/xyproto/mode v0.12.6
 ## explicit; go 1.23.2
 github.com/xyproto/mode
-# github.com/xyproto/palgen v1.6.1
+# github.com/xyproto/palgen v1.7.0
 ## explicit; go 1.16
 github.com/xyproto/palgen
 # github.com/xyproto/syntax v1.14.2
 ## explicit; go 1.25.1
 github.com/xyproto/syntax
-# github.com/xyproto/vt v1.9.0
+# github.com/xyproto/vt v1.9.7
 ## explicit; go 1.25.1
 github.com/xyproto/vt
 # golang.org/x/image v0.39.0
