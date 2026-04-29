@@ -1,6 +1,5 @@
 # Plans
 
-- [ ] `ctrl-d` and `delete` should be possible to use for deleting text, when no file is selected.
 - [ ] Refactor the themes out of Orbiton into a `themes` package, and then use that package also from Megafile.
 - [ ] If there is only one file in a directory, do not let `ctrl-n`/`ctrl-p` go to next/prev file in Orbiton.
 - [ ] Let "tab" with no text in switch between the active directories instead of `ctrl-n`/`ctrl-p`.
