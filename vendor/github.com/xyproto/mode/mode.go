@@ -7,6 +7,7 @@ type Mode int
 const (
 	Blank          = iota // Blank is used if no file mode is found
 	ABC                   // ABC music notation
+	Abiword               // Abiword
 	AIDL                  // Android-related: Android Interface Definition Language
 	Ada                   // Ada
 	Agda                  // Agda
@@ -27,14 +28,17 @@ const (
 	CS                    // C#
 	CSound                // CSound // music
 	CSS                   // CSS
+	CSV                   // CSV and TSV data files
 	Chuck                 // Chuck // music
 	Clojure               // Clojure
 	COBOL                 // COBOL
-	Config                // Config like yaml, yml, toml, and ini files
+	Config                // Config files like ini, bp and various service/socket files
 	Cpp                   // C++
 	Crystal               // Crystal
 	D                     // D
 	Dart                  // Dart
+	Dhall                 // Dhall configuration language
+	DOCX                  // DOCX
 	Diff                  // Diff / patch
 	Dingo                 // Dingo
 	Docker                // For Dockerfiles
@@ -55,6 +59,7 @@ const (
 	GoMod                 // go.mod files
 	GoAssembly            // Go-style Assembly
 	Gradle                // Gradle
+	HCL                   // HashiCorp Configuration Language (Terraform)
 	Haxe                  // Haxe: .hx and .hxml files
 	HIDL                  // Android-related: Hardware Abstraction Layer Interface Definition Language
 	HTML                  // HTML
@@ -69,9 +74,11 @@ const (
 	Jakt                  // Jakt
 	Java                  // Java
 	JavaScript            // JavaScript
+	Janet                 // Janet
 	Just                  // Just
 	Koka                  // Koka
 	Kotlin                // Kotlin
+	LibreOffice           // LibreOffice
 	Lilypond              // Lilypond
 	Lisp                  // Common Lisp and Emacs Lisp
 	Log                   // All sorts of log files
@@ -84,6 +91,7 @@ const (
 	Nim                   // Nim
 	Nix                   // Nix
 	Nmap                  // Nmap scripts
+	Nushell               // Nushell
 	Nroff                 // editing man pages
 	OCaml                 // OCaml
 	Oak                   // Oak
@@ -93,12 +101,15 @@ const (
 	Ollama                // For Modelfiles
 	Perl                  // Perl
 	PHP                   // PHP
+	Pkl                   // Pkl configuration language
 	PolicyLanguage        // SE Linux configuration files
 	POV                   // POV-Ray raytracer
 	Prolog                // Prolog
+	Protobuf              // Protocol Buffers
 	Python                // Python
 	R                     // R
 	ReStructured          // reStructuredText
+	RTF                   // RTF
 	Ruby                  // Ruby
 	Rust                  // Rust
 	Scala                 // Scala
@@ -116,11 +127,15 @@ const (
 	Teal                  // Teal
 	Terra                 // Terra
 	Text                  // plain text documents
+	TOML                  // TOML configuration
 	TypeScript            // TypeScript
 	V                     // V programming language
 	Vibe67                // Vibe67
 	Vim                   // Vim or NeoVim configuration, or .vim scripts
+	WGSL                  // WebGPU Shading Language
+	WordGrinder           // WordGrinder
 	XML                   // XML
+	YAML                  // YAML
 	Zig                   // Zig
 )
 
@@ -131,6 +146,8 @@ func (mode Mode) String() string {
 	switch mode {
 	case ABC:
 		return "ABC"
+	case Abiword:
+		return "Abiword"
 	case Ada:
 		return "Ada"
 	case Agda:
@@ -183,12 +200,18 @@ func (mode Mode) String() string {
 		return "C#"
 	case CSound:
 		return "Csound"
+	case CSV:
+		return "CSV"
 	case CSS:
 		return "CSS"
 	case D:
 		return "D"
 	case Dart:
 		return "Dart"
+	case Dhall:
+		return "Dhall"
+	case DOCX:
+		return "DOCX"
 	case Diff:
 		return "Diff / patch"
 	case Dingo:
@@ -235,6 +258,8 @@ func (mode Mode) String() string {
 		return "Hare"
 	case Haskell:
 		return "Haskell"
+	case HCL:
+		return "HCL"
 	case Haxe:
 		return "Haxe"
 	case HIDL:
@@ -259,12 +284,16 @@ func (mode Mode) String() string {
 		return "JavaScript"
 	case JSON:
 		return "JSON"
+	case Janet:
+		return "Janet"
 	case Just:
 		return "Just"
 	case Koka:
 		return "Koka"
 	case Kotlin:
 		return "Kotlin"
+	case LibreOffice:
+		return "LibreOffice"
 	case Lilypond:
 		return "Lilypond"
 	case Lisp:
@@ -289,6 +318,8 @@ func (mode Mode) String() string {
 		return "Nix"
 	case Nmap:
 		return "Nmap"
+	case Nushell:
+		return "Nushell"
 	case Nroff:
 		return "Nroff"
 	case Oak:
@@ -307,18 +338,24 @@ func (mode Mode) String() string {
 		return "Perl"
 	case PHP:
 		return "PHP"
+	case Pkl:
+		return "Pkl"
 	case PolicyLanguage:
 		return "SELinux"
 	case POV:
 		return "POV-Ray"
 	case Prolog:
 		return "Prolog"
+	case Protobuf:
+		return "Protobuf"
 	case Python:
 		return "Python"
 	case R:
 		return "R"
 	case ReStructured:
 		return "reStructuredText"
+	case RTF:
+		return "RTF"
 	case Ruby:
 		return "Ruby"
 	case Rust:
@@ -353,14 +390,22 @@ func (mode Mode) String() string {
 		return "Terra"
 	case Text:
 		return "Text"
+	case TOML:
+		return "TOML"
 	case TypeScript:
 		return "TypeScript"
 	case Vim:
 		return "ViM"
+	case WGSL:
+		return "WGSL"
+	case WordGrinder:
+		return "WordGrinder"
 	case V:
 		return "V"
 	case XML:
 		return "XML"
+	case YAML:
+		return "YAML"
 	case Zig:
 		return "Zig"
 	default:

@@ -19,7 +19,6 @@ import (
 
 	"github.com/srwiley/rasterx"
 	"golang.org/x/image/colornames"
-	"golang.org/x/net/html/charset"
 )
 
 // ReadIconStream reads the Icon from the given io.Reader.
@@ -36,7 +35,7 @@ func ReadIconStream(stream io.Reader, errMode ...ErrorMode) (*SvgIcon, error) {
 	}
 	classInfo := ""
 	decoder := xml.NewDecoder(stream)
-	decoder.CharsetReader = charset.NewReaderLabel
+
 	for {
 		t, err := decoder.Token()
 		if err != nil {

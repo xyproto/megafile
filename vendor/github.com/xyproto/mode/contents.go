@@ -62,6 +62,8 @@ func DetectFromContentBytes(initial Mode, firstLine []byte, allBytesFunc func() 
 			switch string(lastWord) {
 			case "ash", "bash", "fish", "ksh", "oil", "sh", "tcsh", "zsh": // TODO: support Fish and Oil with their own file modes
 				return Shell, true
+			case "nu":
+				return Nushell, true
 			}
 
 		}
@@ -73,6 +75,14 @@ func DetectFromContentBytes(initial Mode, firstLine []byte, allBytesFunc func() 
 		return XML, true
 	} else if bytes.HasPrefix(firstLine, []byte("{\"")) {
 		return JSON, true
+	} else if bytes.HasPrefix(firstLine, []byte("{\\rtf")) {
+		return RTF, true
+	} else if bytes.HasPrefix(firstLine, []byte("WordGrinder")) {
+		return WordGrinder, true
+	} else if bytes.Contains(firstLine, []byte("<abiword")) {
+		return Abiword, true
+	} else if bytes.HasPrefix(firstLine, []byte("PK\x03\x04")) && bytes.Contains(firstLine, []byte("mimetypeapplication/vnd.oasis.opendocument")) {
+		return LibreOffice, true
 	} else if bytes.HasPrefix(bytes.ToLower(firstLine), []byte("<!doctype html")) || bytes.HasPrefix(bytes.ToLower(firstLine), []byte("<html")) {
 		return HTML, true
 	} else if bytes.Contains(firstLine, []byte("-*- nroff -*-")) {
@@ -84,6 +94,18 @@ func DetectFromContentBytes(initial Mode, firstLine []byte, allBytesFunc func() 
 		return Vim, true
 	} else if bytes.HasPrefix(firstLine, []byte("diff -")) {
 		return Diff, true
+	} else if bytes.HasPrefix(firstLine, []byte("%YAML ")) {
+		return YAML, true
+	} else if bytes.Equal(bytes.TrimSpace(firstLine), []byte("---")) && (m == YAML || m == Blank) {
+		return YAML, true
+	} else if bytes.HasPrefix(firstLine, []byte(`syntax = "proto`)) {
+		return Protobuf, true
+	} else if bytes.HasPrefix(firstLine, []byte("terraform {")) || bytes.HasPrefix(firstLine, []byte(`resource "`)) || bytes.HasPrefix(firstLine, []byte(`variable "`)) || bytes.HasPrefix(firstLine, []byte(`provider "`)) {
+		return HCL, true
+	} else if bytes.HasPrefix(firstLine, []byte(`amends "`)) {
+		return Pkl, true
+	} else if bytes.HasPrefix(firstLine, []byte("@vertex")) || bytes.HasPrefix(firstLine, []byte("@fragment")) || bytes.HasPrefix(firstLine, []byte("@compute")) {
+		return WGSL, true
 	}
 	// If more lines start with "# " than "// " or "/* ", and mode is blank,
 	// set the mode to Config and enable syntax highlighting.
@@ -119,6 +141,12 @@ func DetectFromContentBytes(initial Mode, firstLine []byte, allBytesFunc func() 
 				// Might be a configuration file if most of the lines have (, ) or =
 				configMarkers++
 			}
+		}
+		// If non-comment lines look like shell commands, prefer Shell over Config.
+		// Handles the common case of typing "# comment" + "ls -al" into a buffer
+		// without a shebang or filename extension.
+		if (m == Blank || m == Config) && looksLikeShell(byteLines) {
+			return Shell, true
 		}
 		if hashComment > slashComment {
 			return Config, true
@@ -161,4 +189,41 @@ func DetectFromContentBytes(initial Mode, firstLine []byte, allBytesFunc func() 
 func DetectFromContents(initial Mode, firstLine string, allTextFunc func() string) (Mode, bool) {
 	allBytesFunc := func() []byte { return []byte(allTextFunc()) }
 	return DetectFromContentBytes(initial, []byte(firstLine), allBytesFunc)
+}
+
+// looksLikeShell returns true if the content has the typical shape of a shell
+// script even without a shebang: at least one '#' comment line followed (after
+// any blank lines) by a line whose first word is made up of [a-zA-Z0-9./] and
+// is separated from the rest by a space — the "command arg ..." pattern.
+// Lines that look like "key = value" assignments are rejected as config-like.
+func looksLikeShell(byteLines [][]byte) bool {
+	sawHashComment := false
+	for _, line := range byteLines {
+		trimmed := bytes.TrimSpace(line)
+		if len(trimmed) == 0 {
+			continue
+		}
+		if trimmed[0] == '#' {
+			sawHashComment = true
+			continue
+		}
+		if !sawHashComment {
+			return false
+		}
+		spaceIdx := bytes.IndexByte(trimmed, ' ')
+		if spaceIdx <= 0 {
+			return false
+		}
+		for _, c := range trimmed[:spaceIdx] {
+			if !((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '.' || c == '/') {
+				return false
+			}
+		}
+		rest := bytes.TrimLeft(trimmed[spaceIdx+1:], " \t")
+		if len(rest) == 0 || rest[0] == '=' {
+			return false
+		}
+		return true
+	}
+	return false
 }

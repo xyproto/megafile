@@ -1,5 +1,8 @@
 # oksvg
+
 oksvg is a rasterizer for a partial implementation of the SVG2.0 specification in golang.
+
+This is a fork of https://github.com/srwiley/oksvg, only for reducing the size of the package.
 
 Although many SVG elements will not be read by oksvg, it is good enough to faithfully produce thousands, but certainly not all, SVG icons available both for free and commercially. A list of valid and invalid elements is in the doc folder.
 
@@ -43,7 +46,6 @@ oksvg also requires the user to get or clone into the workspace the rasterx pack
 
 * github.com/srwiley/rasterx
 
+### General info
 
-
-
-
+* Version: 1.0.1
