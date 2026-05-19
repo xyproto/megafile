@@ -9,7 +9,7 @@ require (
 	github.com/xyproto/imagepreview v1.2.2
 	github.com/xyproto/mode v0.12.10
 	github.com/xyproto/syntax v1.14.2
-	github.com/xyproto/themes v0.0.1
+	github.com/xyproto/themes v0.0.2
 	github.com/xyproto/vt v1.9.11
 	golang.org/x/sys v0.44.0
 	mvdan.cc/sh/v3 v3.13.1
