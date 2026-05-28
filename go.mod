@@ -6,12 +6,12 @@ require (
 	github.com/dustin/go-humanize v1.0.1
 	github.com/xyproto/env/v2 v2.5.6
 	github.com/xyproto/files v1.10.8
-	github.com/xyproto/imagepreview v1.2.2
-	github.com/xyproto/mode v0.12.10
+	github.com/xyproto/imagepreview v1.2.3
+	github.com/xyproto/mode v0.12.11
 	github.com/xyproto/syntax v1.14.2
 	github.com/xyproto/themes v0.0.3
 	github.com/xyproto/vt v1.9.11
-	golang.org/x/sys v0.44.0
+	golang.org/x/sys v0.45.0
 	mvdan.cc/sh/v3 v3.13.1
 )
 
@@ -30,8 +30,8 @@ require (
 	github.com/xyproto/gfx v1.0.0 // indirect
 	github.com/xyproto/lookslikegoasm v1.0.0 // indirect
 	github.com/xyproto/oksvg v1.0.1 // indirect
-	github.com/xyproto/palgen v1.7.0 // indirect
-	golang.org/x/image v0.40.0 // indirect
+	github.com/xyproto/palgen v1.7.2 // indirect
+	golang.org/x/image v0.41.0 // indirect
 	golang.org/x/term v0.43.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
