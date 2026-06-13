@@ -192,7 +192,7 @@ func AdjustKeywords(m mode.Mode) {
 		SetKeywords(clojureWords)
 	case mode.CMake:
 		AddAndRemoveKeywords(cmakeWords, []string{"build", "package"})
-	case mode.Config, mode.Ini, mode.FSTAB:
+	case mode.Config, mode.Ini, mode.FSTAB, mode.TOML, mode.YAML:
 		RemoveKeywords([]string{"auto", "build", "def", "default", "for", "from", "get", "install", "int", "local", "no", "not", "package", "return", "super", "type", "var", "with"})
 		AddKeywords([]string{"bind", "bindsym", "DB_PASSWORD", "exec_always", "PASSWORD", "Password", "password", "POSTGRES_PASSWORD", "PWD", "Pwd", "pwd", "Secret", "SECRET", "secret", "Secrets", "SECRETS", "secrets", "set-option", "set-window-option", "unbind", "uses"})
 	case mode.Nix:
@@ -252,7 +252,7 @@ func AdjustKeywords(m mode.Mode) {
 		fallthrough
 	case mode.Java:
 		addKws := []string{"package"}
-		delKws := []string{"add", "bool", "get", "in", "local", "sub", "until"}
+		delKws := []string{"add", "bool", "end", "get", "in", "local", "sub", "until"}
 		AddAndRemoveKeywords(addKws, delKws)
 	case mode.JavaScript:
 		AddKeywords([]string{"of", "super"})
@@ -268,8 +268,11 @@ func AdjustKeywords(m mode.Mode) {
 		SetKeywords(lilypondWords)
 	case mode.Lisp:
 		SetKeywords(emacsWords)
-	case mode.Lua, mode.Teal, mode.Terra:
+	case mode.Lua, mode.Terra:
 		SetKeywords(luaWords)
+	case mode.Teal:
+		SetKeywords(luaWords)
+		AddKeywords([]string{"global"})
 	case mode.Nroff:
 		addKws := []string{"B", "BR", "PP", "SH", "TP", "fB", "fI", "fP", "RB", "TH", "IR", "IP", "fI", "fR"}
 		delKws := []string{"class"}
@@ -332,10 +335,10 @@ func AdjustKeywords(m mode.Mode) {
 		AddAndRemoveKeywords(shellWords, delKws)
 	case mode.SuperCollider:
 		AddKeywords(superColliderWords)
+	case mode.Spec:
+		SetKeywords(specWords)
 	case mode.Text:
 		ClearKeywords()
-	case mode.Spec:
-		AddKeywords(specWords)
 	case mode.Shader:
 		AddKeywords([]string{"buffer", "bvec2", "bvec3", "bvec4", "coherent", "dvec2", "dvec3", "dvec4", "flat", "in", "inout", "invariant", "ivec2", "ivec3", "ivec4", "layout", "mat", "mat2", "mat3", "mat4", "noperspective", "out", "precision", "readonly", "restrict", "smooth", "uniform", "uvec2", "uvec3", "uvec4", "vec2", "vec3", "vec4", "volatile", "writeonly"})
 		fallthrough
