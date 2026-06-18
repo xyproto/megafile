@@ -7,10 +7,10 @@ require (
 	github.com/xyproto/env/v2 v2.5.6
 	github.com/xyproto/files v1.10.8
 	github.com/xyproto/imagepreview v1.2.3
-	github.com/xyproto/mode v0.12.11
+	github.com/xyproto/mode v0.12.12
 	github.com/xyproto/syntax v1.14.6
-	github.com/xyproto/themes v0.0.3
-	github.com/xyproto/vt v1.9.11
+	github.com/xyproto/themes v1.0.0
+	github.com/xyproto/vt v1.9.12
 	golang.org/x/sys v0.46.0
 	mvdan.cc/sh/v3 v3.13.1
 )
