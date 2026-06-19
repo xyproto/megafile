@@ -15,7 +15,7 @@ import (
 	"github.com/xyproto/vt"
 )
 
-const versionString = "MegaFile 1.7.6"
+const versionString = "MegaFile 1.7.7"
 
 func main() {
 	if len(os.Args) > 1 {
