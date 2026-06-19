@@ -7,8 +7,8 @@ require (
 	github.com/xyproto/env/v2 v2.5.6
 	github.com/xyproto/files v1.10.8
 	github.com/xyproto/imagepreview v1.2.3
-	github.com/xyproto/mode v0.12.12
-	github.com/xyproto/syntax v1.14.6
+	github.com/xyproto/mode v0.12.13
+	github.com/xyproto/syntax v1.14.7
 	github.com/xyproto/themes v1.0.0
 	github.com/xyproto/vt v1.9.12
 	golang.org/x/sys v0.46.0
@@ -31,7 +31,7 @@ require (
 	github.com/xyproto/lookslikegoasm v1.0.0 // indirect
 	github.com/xyproto/oksvg v1.0.1 // indirect
 	github.com/xyproto/palgen v1.7.3 // indirect
-	golang.org/x/image v0.42.0 // indirect
+	golang.org/x/image v0.43.0 // indirect
 	golang.org/x/term v0.44.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
