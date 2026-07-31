@@ -1,5 +1,6 @@
 # Plans
 
+- [ ] Go to next/prev file with `ctrl-n`/`ctrl-p` when the cursor is on a filename.
 - [ ] Refactor the themes out of Orbiton into a `themes` package, and then use that package also from Megafile.
 - [ ] If there is only one file in a directory, do not let `ctrl-n`/`ctrl-p` go to next/prev file in Orbiton.
 - [ ] Let "tab" with no text in switch between the active directories instead of `ctrl-n`/`ctrl-p`.
