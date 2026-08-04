@@ -1,5 +1,6 @@
 # Plans
 
+- [ ] When the path is wider than the terminal width, shorten the path a bit.
 - [ ] When there is only one file to toggle between with `ctrl-n`/`ctrl-p`, then don't try to toggle anything.
 - [ ] Go to next/prev file with `ctrl-n`/`ctrl-p` when the cursor is on a filename.
 - [ ] Refactor the themes out of Orbiton into a `themes` package, and then use that package also from Megafile.
