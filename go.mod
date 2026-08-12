@@ -10,7 +10,7 @@ require (
 	github.com/xyproto/mode v0.12.15
 	github.com/xyproto/syntax v1.14.7
 	github.com/xyproto/themes v1.0.2
-	github.com/xyproto/vt v1.9.13
+	github.com/xyproto/vt v1.9.16
 	golang.org/x/sys v0.47.0
 	mvdan.cc/sh/v3 v3.13.1
 )
@@ -31,7 +31,7 @@ require (
 	github.com/xyproto/lookslikegoasm v1.0.2 // indirect
 	github.com/xyproto/oksvg v1.0.1 // indirect
 	github.com/xyproto/palgen v1.7.3 // indirect
-	golang.org/x/image v0.44.0 // indirect
+	golang.org/x/image v0.45.0 // indirect
 	golang.org/x/term v0.45.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
