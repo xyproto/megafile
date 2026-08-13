@@ -1,5 +1,6 @@
 # Plans
 
+- [ ] If the search filter starts with ".", then also filter on hidden files.
 - [ ] When the path is wider than the terminal width, shorten the path a bit.
 - [ ] When there is only one file to toggle between with `ctrl-n`/`ctrl-p`, then don't try to toggle anything.
 - [ ] Go to next/prev file with `ctrl-n`/`ctrl-p` when the cursor is on a filename.
