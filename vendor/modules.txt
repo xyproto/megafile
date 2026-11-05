@@ -53,7 +53,7 @@ github.com/xyproto/imagepreview
 # github.com/xyproto/lookslikegoasm v1.0.2
 ## explicit; go 1.23.2
 github.com/xyproto/lookslikegoasm
-# github.com/xyproto/mode v0.12.17
+# github.com/xyproto/mode v0.12.18
 ## explicit; go 1.23.2
 github.com/xyproto/mode
 # github.com/xyproto/oksvg v1.0.1
@@ -62,8 +62,8 @@ github.com/xyproto/oksvg
 # github.com/xyproto/palgen v1.7.3
 ## explicit; go 1.25.1
 github.com/xyproto/palgen
-# github.com/xyproto/syntax v1.14.7
-## explicit; go 1.25.1
+# github.com/xyproto/syntax v1.14.8
+## explicit; go 1.26.0
 github.com/xyproto/syntax
 # github.com/xyproto/themes v1.0.2
 ## explicit; go 1.25.1

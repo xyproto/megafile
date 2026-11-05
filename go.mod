@@ -7,8 +7,8 @@ require (
 	github.com/xyproto/env/v2 v2.5.6
 	github.com/xyproto/files v1.10.8
 	github.com/xyproto/imagepreview v1.2.4
-	github.com/xyproto/mode v0.12.17
-	github.com/xyproto/syntax v1.14.7
+	github.com/xyproto/mode v0.12.18
+	github.com/xyproto/syntax v1.14.8
 	github.com/xyproto/themes v1.0.2
 	github.com/xyproto/vt v1.9.22
 	golang.org/x/sys v0.49.0
