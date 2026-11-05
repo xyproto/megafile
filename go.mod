@@ -10,16 +10,18 @@ require (
 	github.com/xyproto/mode v0.12.17
 	github.com/xyproto/syntax v1.14.7
 	github.com/xyproto/themes v1.0.2
-	github.com/xyproto/vt v1.9.21
+	github.com/xyproto/vt v1.9.22
 	golang.org/x/sys v0.49.0
 	mvdan.cc/sh/v3 v3.14.1
 )
 
 require (
+	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dkua/go-ico v0.0.0-20161218204303-1c25f691ce06 // indirect
 	github.com/jsummers/gobmp v0.0.0-20230614200233-a9de23ed2e25 // indirect
 	github.com/lucasb-eyer/go-colorful v1.4.1 // indirect
+	github.com/mattn/go-runewidth v0.0.31 // indirect
 	github.com/peterhellberg/gfx v0.0.0-20260907063546-85ca1d9df3fe // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/sourcegraph/annotate v0.0.0-20160123013949-f4cad6c6324d // indirect
