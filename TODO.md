@@ -1,5 +1,7 @@
 # Plans
 
+- [ ] Support arrow keys when browsing files under tmux + ssh.
+- [ ] Let the file browser be more like `ncdu`.
 - [ ] If the search filter starts with ".", then also filter on hidden files.
 - [ ] When the path is wider than the terminal width, shorten the path a bit.
 - [ ] When there is only one file to toggle between with `ctrl-n`/`ctrl-p`, then don't try to toggle anything.
